@@ -1,1 +1,5 @@
-settings.txt
+settings.py
+
+__pycache__/
+
+venv/
