@@ -1,7 +1,7 @@
 from enum import Enum
-from exceptions import CoordOccupiedException, InexistentGameException
+import exceptions
 
-__author__ = "Rafael Kuebler da Silva <rafael_kuebler@yahoo.es>"
+__author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
 __version__ = "0.1"
 
 
@@ -22,33 +22,36 @@ class Group:
         self.stones = []
 
 
+class Board:
+    def __init__(self):
+        self.size_x = 9
+        self.size_y = 9
+        self.stones = []
+
+        for _ in range(self.size_x):
+            for _ in range(self.size_y):
+                self.stones.append(None)
+
+
 class GoGame:
     def __init__(self):
         self.groups = []
         self.cur_color = Color.BLACK
-        self.size_x = 9
-        self.size_y = 9
         self.players = (None, None)
-        self.board = []
-
-        for _ in range(self.size_x):
-            for _ in range(self.size_y):
-                self.board.append(None)
+        self.board = Board()
 
     def place_stone(self, coords):
+        exceptions.sanitize_stone_position(coords, self.board)
         x, y = self.transform_coords(coords)
-        if self.board[x][y] is not None:  # if coord is taken
-            raise CoordOccupiedException()
 
-        # TODO: add "Ko" rule
-
-        #self.capture_neighbors(coords)
+        # TODO: "Ko" rule
+        # TODO: capture neighbor groups without liberties
         # TODO: calculate group
         group = None
         self.board[x][y] = Stone(coords, self.cur_color, group)
-        return f"Placed stone on {coords}"
 
     def capture_neighbors(self, coords):
+        # TODO
         return
         groups = []
         for neighbor in self.neighbors(coords):
@@ -67,11 +70,6 @@ class GoGame:
             neighbors.append((x, y + 1))
         return neighbors
 
-
-    @staticmethod
-    def transform_coords(self, coords):
-        return (1,1)
-
     def turn(self):
         if self.cur_color == Color.BLACK:
             self.cur_color = self.cur_color.WHITE
@@ -79,3 +77,9 @@ class GoGame:
         else:
             self.cur_color = Color.BLACK
             return Color.WHITE
+
+    @staticmethod
+    def transform_coords(coords):
+        letter = ord(coords[0]) - ord('a')
+        number = coords[1] - 1
+        return letter, number
