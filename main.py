@@ -2,6 +2,7 @@ import settings
 import logging
 from gamehandler import GameHandler
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from io import BytesIO
 
 __author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
 __version__ = "0.1"
@@ -42,11 +43,14 @@ def pass_turn(bot, update):
 
 
 def show_board(bot, update):
-    # TODO: show_board image
     chat_id = update.message.chat_id
-    image = game_handler.create_image(chat_id)
     cur_player = game_handler.cur_player(chat_id)
-    bot.send_message(chat_id=update.message.chat_id, text=f"*Here goes your board image*")
+    image = game_handler.create_image(chat_id)
+    bio = BytesIO()
+    bio.name = 'image.jpeg'
+    image.save(bio, 'JPEG')
+    bio.seek(0)
+    bot.send_photo(chat_id, photo=bio)
     bot.send_message(chat_id=update.message.chat_id, text=f"It is {cur_player}'s turn")
 
 
@@ -78,4 +82,5 @@ if __name__ == '__main__':
     for handler in message_handlers:
         dispatcher.add_handler(handler)
 
+    print('Starting polling')
     updater.start_polling()
