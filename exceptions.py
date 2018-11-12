@@ -32,7 +32,7 @@ def sanitize_player_turn(player, cur_player):
         raise IncorrectTurnException("It is not your turn!")
 
 
-def sanitize_stone_position(coords, board):
+def sanitize_stone_coords(coords, board):
     x_in_range = coords[0] not in range(ord('a'), board.size_x)
     y_in_range = coords[1] not in range(0, board.size_y)
     if not x_in_range or not y_in_range:
