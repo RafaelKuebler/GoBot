@@ -7,34 +7,44 @@ __version__ = "0.1"
 
 
 class Game:
-    def __init__(self, chat_id, players):
+    def __init__(self, chat_id, player):
         self.go_game = GoGame()
-        self.players = players
+        self.players = [player]
         self.chat_id = chat_id
-        self.cur_player = players[1]
+        self.cur_player = None
+
+    def add_player(self, player):
+        self.players.append(player)
+        self.cur_player = player
 
 
 class GameHandler:
     def __init__(self):
         self.games = {}
 
-    def new_game(self, chat_id, players):
+    def new_game(self, chat_id, player):
         # TODO: add import for detected saved games
-        self.games[chat_id] = Game(chat_id, players)
+        self.games[chat_id] = Game(chat_id, player)
+
+    def join(self, chat_id, player):
+        # TODO: add import for detected saved games
+        game = self.get_game_with_chat_id(chat_id)
+        game.add_player(player)
 
     def place_stone(self, chat_id, player, coord):
         game = self.get_game_with_chat_id(chat_id)
+        exceptions.sanitize_all_players_ready(game)
         exceptions.sanitize_player_turn(player, game.cur_player)
-        game.place_stone(player, coord)
+        game.go_game.place_stone(coord)
 
     def cur_player(self, chat_id):
         game = self.get_game_with_chat_id(chat_id)
         return game.cur_player
 
     def pass_turn(self, chat_id, player):
+        # TODO: implement pass
         game = self.get_game_with_chat_id(chat_id)
         exceptions.sanitize_player_turn(player, game.cur_player)
-        # TODO: implement pass
 
     def create_image(self, chat_id):
         game = self.get_game_with_chat_id(chat_id)

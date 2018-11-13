@@ -1,7 +1,7 @@
 # GoSenseiBot
 
 *GoSenseiBot* is a [Telegram](https://telegram.org/) bot that allows you to play the very
-popular game *GO (Goban)* in a Telegram chat with you friends!
+popular game *GO* in a Telegram chat with you friends!
 
 *GoSenseiBot* will accept commands such as "/place a4" and send
 you a visualization of the game board after every move.

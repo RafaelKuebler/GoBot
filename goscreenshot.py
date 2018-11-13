@@ -38,9 +38,9 @@ def draw_stone(draw, stone):
     if stone is None:
         return
     x, y = stone.coords
-    color = WHITE if stone.color == Color.White else BLACK
-    bb_start = (startx+widthx*(x-1)-stone_sizex, starty+widthy*(y-1)-stone_sizey)
-    bb_end = (startx+widthx*(x-1)+stone_sizex, starty+widthy*(y-1)+stone_sizey)
+    color = WHITE if stone.color is Color.WHITE else BLACK
+    bb_start = (startx+widthx*x-stone_sizex, starty+widthy*y-stone_sizey)
+    bb_end = (startx+widthx*x+stone_sizex, starty+widthy*y+stone_sizey)
     draw.ellipse((bb_start, bb_end), fill=color)
 
 

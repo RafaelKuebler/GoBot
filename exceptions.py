@@ -2,22 +2,32 @@ __author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
 __version__ = "0.1"
 
 
-class InexistentGameException(Exception):
+class GoGameException(Exception):
     def __init__(self, message):
         super().__init__(message)
 
 
-class IncorrectTurnException(Exception):
+class InexistentGameException(GoGameException):
     def __init__(self, message):
         super().__init__(message)
 
 
-class InvalidCoordinatesException(Exception):
+class IncorrectTurnException(GoGameException):
     def __init__(self, message):
         super().__init__(message)
 
 
-class CoordOccupiedException(Exception):
+class InvalidCoordinatesException(GoGameException):
+    def __init__(self, message):
+        super().__init__(message)
+
+
+class CoordOccupiedException(GoGameException):
+    def __init__(self, message):
+        super().__init__(message)
+
+
+class NotEnoughPlayersException(GoGameException):
     def __init__(self, message):
         super().__init__(message)
 
@@ -42,3 +52,8 @@ def sanitize_stone_coords(coords, board):
 def sanitize_pos_taken(x, y, board):
     if board.stones[x][y] is not None:
         raise CoordOccupiedException("This coordinate already holds a stone!")
+
+
+def sanitize_all_players_ready(game):
+    if game.cur_player is None:
+        raise NotEnoughPlayersException("Another player needs to join the game!")

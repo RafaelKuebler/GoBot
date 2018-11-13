@@ -43,12 +43,8 @@ class Stone:
         return adjacent_groups
 
     def capture_neighbors(self):
-        print('Searching for groups to capture...')
         for group in self.adjacent_groups:
-            print(f'Adjacent group: {group}')
-            print(f'  Liberties of group: {group.liberties}')
             if group.color != self.color and not group.liberties:
-                print(f'Capturing group...')
                 group.capture()
 
     @property
@@ -69,7 +65,6 @@ class Stone:
         group.stones.add(self)
         for adj_group in adjacent_groups:
             if adj_group.color == self.color:
-                print(f'Merging {group} with {adj_group}...')
                 group.merge(adj_group)
         return group
 
@@ -129,9 +124,9 @@ class GoGame:
         x, y = self.transform_coords(coords)
         exceptions.sanitize_pos_taken(x, y, self.board)
         # TODO: "Ko" rule
+        # TODO: Do not allow suicides
         Stone(x, y, self.cur_color, self.board)
         self.change_turn()
-        print(f'Changed turn to {self.cur_color}')
 
     def change_turn(self):
         if self.cur_color == Color.BLACK:
@@ -141,6 +136,7 @@ class GoGame:
 
     @staticmethod
     def transform_coords(coords):
+        # TODO: implement notation as in https://senseis.xmp.net/?Coordinates
         letter = ord(coords[0]) - ord('a')
         number = int(coords[1]) - 1
         return letter, number
