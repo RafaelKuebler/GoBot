@@ -20,7 +20,7 @@ To try him out, just type **@GoSenseiBot** into your chat or add it to one of yo
 
 ## Authors
 
-* **Rafael Kübler da Silva** - *Initial work*
+* **Rafael Kübler da Silva**
 
 ## License
 

@@ -17,9 +17,9 @@ class Stone:
         self.board = board
         self.board.stones[x][y] = self
         self.group = self.search_group()
-
         self.capture_neighbors()
         self.check_self_capture()
+        self.board.last_stone_placed = self
 
     @property
     def neighbors(self):
@@ -109,6 +109,7 @@ class Board:
         self.size_x = size_x
         self.size_y = size_y
         self.stones = self._init_stones(self.size_x, self.size_y)
+        self.last_stone_placed = None
 
     @staticmethod
     def _init_stones(size_x, size_y):
@@ -124,6 +125,7 @@ class Board:
 class GoGame:
     def __init__(self):
         self.cur_color = Color.BLACK
+        # TODO: Allow user to choose board size
         self.board = Board(9, 9)
 
     def place_stone(self, coords):
@@ -139,7 +141,11 @@ class GoGame:
         else:
             self.cur_color = Color.BLACK
 
-    def calculate_result(self, chat_id):
+    def mark_stone(self, coords):
+        # TODO: Allow players to mark stones
+        pass
+
+    def calculate_result(self):
         # TODO: Calculate the territory of each player
         return 0, 0
 

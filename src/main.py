@@ -33,7 +33,7 @@ def join(bot, update):
     user_id = update.message.from_user.id
     user_name = update.message.from_user.name.replace('\'', '')
     game_handler.join(chat_id, user_id, user_name)
-    send_message(bot, chat_id, settings.start_game_text)
+    send_message(bot, chat_id, f"*{settings.start_game_text}*")
     show_board(bot, update)
 
 
@@ -69,7 +69,7 @@ def show_board(bot, update):
 def display_proverb(bot, update):
     chat_id = update.message.chat_id
     proverb = random.choice(settings.go_proverbs)
-    send_message(bot, chat_id, f"\'_{proverb}_\'")
+    send_message(bot, chat_id, f"\"_{proverb}_\"")
 
 
 def unknown(bot, update):

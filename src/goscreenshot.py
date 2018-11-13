@@ -26,19 +26,20 @@ stone_sizex = widthx*0.45
 stone_sizey = widthy*0.45
 
 
-def take_screenshot(stones):
+def take_screenshot(board):
     img = Image.open(BACKGROUND)
     draw = ImageDraw.Draw(img)
-    for column in stones:
+    for column in board.stones:
         for stone in column:
-            draw_stone(draw, stone)
+            draw_stone(draw, stone, stone == board.last_stone_placed)
     bio = BytesIO()
     img.save(bio, 'JPEG')
     bio.seek(0)
     return bio
 
 
-def draw_stone(draw, stone):
+def draw_stone(draw, stone, marked):
+    # TODO: create some nice parametric drawing methods
     if stone is None:
         return
     x, y = stone.coords
@@ -46,3 +47,9 @@ def draw_stone(draw, stone):
     bb_start = (startx+widthx*x-stone_sizex, starty+widthy*y-stone_sizey)
     bb_end = (startx+widthx*x+stone_sizex, starty+widthy*y+stone_sizey)
     draw.ellipse((bb_start, bb_end), fill=color)
+
+    if marked:
+        color = BLACK if stone.color is Color.WHITE else WHITE
+        bb_start = (startx+widthx*x-stone_sizex/2, starty+widthy*y - stone_sizey/2)
+        bb_end = (startx+widthx*x+stone_sizex/2, starty+widthy*y + stone_sizey/2)
+        draw.rectangle((bb_start, bb_end), fill=None, outline=color, width=3)

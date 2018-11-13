@@ -67,10 +67,10 @@ class GameHandler:
 
     def create_image(self, chat_id):
         game = self.get_game_with_chat_id(chat_id)
-        screenshot = goscreenshot.take_screenshot(game.go_game.board.stones)
+        screenshot = goscreenshot.take_screenshot(game.go_game.board)
         return screenshot
 
-    def save_games(self, chat_id):
+    def save_games(self):
         # TODO: export all games to hard disc
         pass
 
