@@ -4,7 +4,6 @@ import telegram
 from key import token
 from gamehandler import GameHandler
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-from io import BytesIO
 from exceptions import GoGameException
 import random
 
@@ -56,11 +55,7 @@ def show_board(bot, update):
     chat_id = update.message.chat_id
     cur_player = game_handler.cur_player(chat_id)
     image = game_handler.create_image(chat_id)
-    bio = BytesIO()
-    bio.name = 'image.jpeg'
-    image.save(bio, 'JPEG')
-    bio.seek(0)
-    bot.send_photo(chat_id, photo=bio)
+    bot.send_photo(chat_id, photo=image)
     # TODO: extract string
     send_message(bot, chat_id, f"It is {cur_player}'s turn")
 

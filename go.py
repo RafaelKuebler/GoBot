@@ -70,8 +70,9 @@ class Stone:
         return group
 
     def check_self_capture(self):
-        if not self.liberties:
+        if not self.group.liberties:
             self.capture()
+            self.group.stones.remove(self)
             exceptions.check_self_capture()
 
     def __repr__(self):
@@ -131,7 +132,6 @@ class GoGame:
         exceptions.sanitize_pos_taken(x, y, self.board)
         # TODO: Implement Ko rule
         Stone(x, y, self.cur_color, self.board)
-        self.change_turn()
 
     def change_turn(self):
         if self.cur_color == Color.BLACK:

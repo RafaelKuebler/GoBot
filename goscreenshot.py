@@ -1,10 +1,12 @@
 from PIL import Image, ImageDraw
 from go import Color
+from io import BytesIO
+import settings
 
 __author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
 __version__ = "0.1"
 
-BACKGROUND = 'images/board.jpg'
+BACKGROUND = settings.board_path
 BOARD_SIZE = (820, 820)
 WHITE = (255, 255, 255, 0)
 BLACK = (0, 0, 0, 0)
@@ -30,8 +32,10 @@ def take_screenshot(stones):
     for column in stones:
         for stone in column:
             draw_stone(draw, stone)
-    # im.save('images/board.jpg')
-    return img
+    bio = BytesIO()
+    img.save(bio, 'JPEG')
+    bio.seek(0)
+    return bio
 
 
 def draw_stone(draw, stone):
@@ -42,19 +46,3 @@ def draw_stone(draw, stone):
     bb_start = (startx+widthx*x-stone_sizex, starty+widthy*y-stone_sizey)
     bb_end = (startx+widthx*x+stone_sizex, starty+widthy*y+stone_sizey)
     draw.ellipse((bb_start, bb_end), fill=color)
-
-
-"""
-for i in range(size_x):  # vertical
-    draw.line(((startx+i*widthx, starty), (startx+i*widthx, starty+widthy*(size_y-1))), fill=BLACK, width=3)
-for i in range(size_y):  # horizontal
-    draw.line(((startx, starty + i * widthy), (startx + widthx * (size_x-1), starty + i * widthy)), fill=BLACK, width=3)
-
-circle_positions = [(3, 3), (3, 7), (5, 5), (7, 3), (7, 7)]
-circle_sizex = widthx/15
-circle_sizey = widthy/15
-for x, y in circle_positions:
-    draw.ellipse(((startx+widthx*(x-1)-circle_sizex, starty+widthy*(y-1)-circle_sizey), (startx+widthx*(x-1)+circle_sizex, starty+widthy*(y-1)+circle_sizey)), fill=BLACK)
-"""
-
-

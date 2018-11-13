@@ -23,10 +23,12 @@ class GameHandler:
         self.games = {}
 
     def new_game(self, chat_id, player):
+        # TODO: only allow one of the current players to overwrite the game
         self.games[chat_id] = Game(chat_id, player)
 
     def join(self, chat_id, player):
         # TODO: import of detected saved games
+        # TODO: reject join request if game is already full
         game = self.get_game_with_chat_id(chat_id)
         game.add_player(player)
 
@@ -35,6 +37,15 @@ class GameHandler:
         exceptions.sanitize_all_players_ready(game)
         exceptions.sanitize_player_turn(player, game.cur_player)
         game.go_game.place_stone(coord)
+        self.change_turn(game)
+
+    @staticmethod
+    def change_turn(game):
+        game.go_game.change_turn()
+        if game.cur_player == game.players[0]:
+            game.cur_player = game.players[1]
+        else:
+            game.cur_player = game.players[0]
 
     def cur_player(self, chat_id):
         game = self.get_game_with_chat_id(chat_id)
@@ -47,7 +58,7 @@ class GameHandler:
 
     def create_image(self, chat_id):
         game = self.get_game_with_chat_id(chat_id)
-        screenshot = goscreenshot.take_screenshot(game.go_game.board)
+        screenshot = goscreenshot.take_screenshot(game.go_game.board.stones)
         return screenshot
 
     def save_game(self, chat_id):

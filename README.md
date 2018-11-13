@@ -8,7 +8,7 @@ you a visualization of the game board after every move.
 
 [comment]: # (Add screenshot of chat showing board)
 
-To try him out, just type @GoSenseiBot into your chat!
+To try him out, just type **@GoSenseiBot** into your chat or add it to one of your groups!
 
 (Heads up: sadly, I cannot guarantee that the server will be running continuously...)
 

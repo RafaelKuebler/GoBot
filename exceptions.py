@@ -47,7 +47,7 @@ def sanitize_chat_id(chat_id, games):
 
 def sanitize_player_turn(player, cur_player):
     if player != cur_player:
-        proverb = random.coice(settings.patience_proverbs)
+        proverb = f"_{random.choice(settings.patience_proverbs)}_"
         raise IncorrectTurnException(f"{proverb}\n{settings.error_incorrect_turn}")
 
 
