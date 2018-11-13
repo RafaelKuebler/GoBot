@@ -1,12 +1,12 @@
-from src import settings
 import logging
 import telegram
+import random
+import atexit
+from src import settings
 from src.key import token
 from src.gamehandler import GameHandler
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from src.exceptions import GoGameException
-import random
-import atexit
 
 __author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
 __version__ = "0.1"
@@ -14,6 +14,7 @@ __version__ = "0.1"
 game_handler = GameHandler()
 
 
+# TODO: Extract strings somehow
 def start(bot, update):
     chat_id = update.message.chat_id
     send_message(bot, chat_id, settings.greeting)
@@ -50,9 +51,10 @@ def place(bot, update):
 
 def pass_turn(bot, update):
     chat_id = update.message.chat_id
-    game_handler.create_image(chat_id)
-    # TODO: pass
-    send_message(bot, chat_id, f"Player x passed")
+    user_id = update.message.from_user.id
+    user_name = update.message.from_user.name.replace('\'', '')
+    game_handler.pass_turn(chat_id, user_id)
+    send_message(bot, chat_id, f"Player {user_name} passed")
     show_board(bot, update)
 
 
@@ -62,7 +64,6 @@ def show_board(bot, update):
     cur_color = game_handler.cur_player_color(chat_id)
     image = game_handler.create_image(chat_id)
     bot.send_photo(chat_id, photo=image)
-    # TODO: extract string
     send_message(bot, chat_id, f"It is {cur_player_name}'s ({cur_color}) turn")
 
 

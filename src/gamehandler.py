@@ -61,9 +61,12 @@ class GameHandler:
         return game.go_game.cur_color.value
 
     def pass_turn(self, chat_id, player):
-        # TODO: implement pass
+        # TODO: game over when both players passed
         game = self.get_game_with_chat_id(chat_id)
+        exceptions.check_all_players_ready(game)
+        exceptions.check_player_permissions(player, game.players)
         exceptions.check_player_turn(player, game.cur_player)
+        self.change_turn(game)
 
     def create_image(self, chat_id):
         game = self.get_game_with_chat_id(chat_id)
