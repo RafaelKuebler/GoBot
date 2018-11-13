@@ -19,6 +19,7 @@ class Stone:
         self.group = self.search_group()
 
         self.capture_neighbors()
+        self.check_self_capture()
 
     @property
     def neighbors(self):
@@ -68,8 +69,13 @@ class Stone:
                 group.merge(adj_group)
         return group
 
+    def check_self_capture(self):
+        if not self.liberties:
+            self.capture()
+            exceptions.check_self_capture()
+
     def __repr__(self):
-        return f'({self.coords[0]},{self.coords[1]}, {self.color})'
+        return f"({self.color}: {self.coords})"
 
 
 class Group:
@@ -94,7 +100,7 @@ class Group:
             stone.capture()
 
     def __repr__(self):
-        return f'({self.stones}, {self.color})'
+        return f"({self.color}: {self.stones})"
 
 
 class Board:
@@ -123,8 +129,7 @@ class GoGame:
         exceptions.sanitize_stone_coords(coords, self.board)
         x, y = self.transform_coords(coords)
         exceptions.sanitize_pos_taken(x, y, self.board)
-        # TODO: "Ko" rule
-        # TODO: Do not allow suicides
+        # TODO: Implement Ko rule
         Stone(x, y, self.cur_color, self.board)
         self.change_turn()
 
@@ -133,6 +138,10 @@ class GoGame:
             self.cur_color = self.cur_color.WHITE
         else:
             self.cur_color = Color.BLACK
+
+    def calculate_result(self, chat_id):
+        # TODO: Calculate the territory of each player
+        return 0, 0
 
     @staticmethod
     def transform_coords(coords):

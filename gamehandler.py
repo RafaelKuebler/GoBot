@@ -23,11 +23,10 @@ class GameHandler:
         self.games = {}
 
     def new_game(self, chat_id, player):
-        # TODO: add import for detected saved games
         self.games[chat_id] = Game(chat_id, player)
 
     def join(self, chat_id, player):
-        # TODO: add import for detected saved games
+        # TODO: import of detected saved games
         game = self.get_game_with_chat_id(chat_id)
         game.add_player(player)
 
@@ -53,10 +52,6 @@ class GameHandler:
 
     def save_game(self, chat_id):
         # TODO: export game to hard disc
-        pass
-
-    def calculate_result(self, chat_id):
-        # TODO: Calculate the area each player has
         pass
 
     def get_game_with_chat_id(self, chat_id):

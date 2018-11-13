@@ -16,6 +16,7 @@ To try him out, just type @GoSenseiBot into your chat!
 
 * [Telegram Bot API](https://core.telegram.org/bots/api) - The API for all Telegram Bots
 * [Python Telegram Bot](https://github.com/python-telegram-bot/python-telegram-bot) - Python wrapper for the Telegram Bot API
+* [Pillow](https://python-pillow.org/) - Fork of PIL, the Python Imaging Library
 
 ## Authors
 

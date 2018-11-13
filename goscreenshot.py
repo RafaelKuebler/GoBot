@@ -24,14 +24,14 @@ stone_sizex = widthx*0.45
 stone_sizey = widthy*0.45
 
 
-def take_screenshot(board):
-    im = Image.open(BACKGROUND)
-    draw = ImageDraw.Draw(im)
-    for row in board.stones:
-        for stone in row:
+def take_screenshot(stones):
+    img = Image.open(BACKGROUND)
+    draw = ImageDraw.Draw(img)
+    for column in stones:
+        for stone in column:
             draw_stone(draw, stone)
     # im.save('images/board.jpg')
-    return im
+    return img
 
 
 def draw_stone(draw, stone):
