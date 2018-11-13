@@ -24,7 +24,7 @@ To try him out, just type **@GoSenseiBot** into your chat or add it to one of yo
 
 ## License
 
-[comment]: # (TODO)
+This project is licensed under the MIT License - see the [LICENSE.txt](LICENSE.txt) file for details
 
 ## Acknowledgments
 

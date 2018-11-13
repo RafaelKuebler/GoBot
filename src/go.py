@@ -6,8 +6,8 @@ __version__ = "0.1"
 
 
 class Color(Enum):
-    WHITE = 0,
-    BLACK = 1
+    WHITE = "white"
+    BLACK = "black"
 
 
 class Stone:
@@ -127,15 +127,15 @@ class GoGame:
         self.board = Board(9, 9)
 
     def place_stone(self, coords):
-        exceptions.sanitize_stone_coords(coords, self.board)
+        exceptions.check_stone_coords(coords, self.board)
         x, y = self.transform_coords(coords)
-        exceptions.sanitize_pos_taken(x, y, self.board)
+        exceptions.check_pos_taken(x, y, self.board)
         # TODO: Implement Ko rule
         Stone(x, y, self.cur_color, self.board)
 
     def change_turn(self):
         if self.cur_color == Color.BLACK:
-            self.cur_color = self.cur_color.WHITE
+            self.cur_color = Color.WHITE
         else:
             self.cur_color = Color.BLACK
 
