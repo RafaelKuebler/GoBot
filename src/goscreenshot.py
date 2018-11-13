@@ -25,6 +25,7 @@ stone_size_x = width_x * .9
 stone_size_y = width_y * .9
 
 
+# TODO: create nice board graphic where indexing and board occupy space evenly
 def take_screenshot(board):
     img = Image.open(BACKGROUND)
     draw = ImageDraw.Draw(img)
@@ -32,7 +33,7 @@ def take_screenshot(board):
         for stone in column:
             draw_stone(draw, stone, stone == board.last_stone_placed)
     bio = BytesIO()
-    img.save(bio, 'JPEG')
+    img.save(bio, settings.image_extension)
     bio.seek(0)
     return bio
 

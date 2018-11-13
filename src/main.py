@@ -14,7 +14,6 @@ __version__ = "0.1"
 game_handler = GameHandler()
 
 
-# TODO: Extract strings somehow
 def start(bot, update):
     chat_id = update.message.chat_id
     send_message(bot, chat_id, settings.greeting)
@@ -25,7 +24,9 @@ def new_game(bot, update):
     chat_id = update.message.chat_id
     user_id = update.message.from_user.id
     user_name = update.message.from_user.name.replace('\'', '')
+
     game_handler.new_game(chat_id, user_id, user_name)
+
     send_message(bot, chat_id, settings.new_game_text)
 
 
@@ -33,7 +34,9 @@ def join(bot, update):
     chat_id = update.message.chat_id
     user_id = update.message.from_user.id
     user_name = update.message.from_user.name.replace('\'', '')
+
     game_handler.join(chat_id, user_id, user_name)
+
     send_message(bot, chat_id, f"*{settings.start_game_text}*")
     show_board(bot, update)
 
@@ -54,7 +57,9 @@ def pass_turn(bot, update):
     user_id = update.message.from_user.id
     user_name = update.message.from_user.name.replace('\'', '')
     game_handler.pass_turn(chat_id, user_id)
-    send_message(bot, chat_id, f"Player {user_name} passed")
+
+    message = settings.player_passed_text.format(user_name)
+    send_message(bot, chat_id, message)
     show_board(bot, update)
 
 
@@ -63,12 +68,15 @@ def show_board(bot, update):
     cur_player_name = game_handler.cur_player_name(chat_id)
     cur_color = game_handler.cur_player_color(chat_id)
     image = game_handler.create_image(chat_id)
+
     bot.send_photo(chat_id, photo=image)
-    send_message(bot, chat_id, f"It is {cur_player_name}'s ({cur_color}) turn")
+    message = settings.cur_turn_text.format(cur_player_name, cur_color)
+    send_message(bot, chat_id, message)
 
 
 def display_proverb(bot, update):
     chat_id = update.message.chat_id
+
     proverb = random.choice(settings.go_proverbs)
     send_message(bot, chat_id, f"\"_{proverb}_\"")
 

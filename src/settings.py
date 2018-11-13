@@ -10,6 +10,8 @@ commands = "These are my available commands:\n" \
 new_game_text = "You created a new game! Another player can join with the /join command."
 start_game_text = "Let the game begin!"
 unknown_command_text = "Sorry, I didn't understand that command."
+player_passed_text = "Player {} passed"
+cur_turn_text = "It is {}'s ({}) turn"
 
 patience_proverbs = [
     "One moment of patience may ward off a great disaster; one moment of impatience may ruin a whole life.",
@@ -62,3 +64,4 @@ error_self_capture = "The move is a self-capture and is not allowed!"
 error_ko = "Move not allowed because of Ko rule"
 
 board_path = '../images/board.jpg'
+image_extension = 'JPEG'
