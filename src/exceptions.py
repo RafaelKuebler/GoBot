@@ -1,4 +1,4 @@
-import settings
+from src import settings
 import random
 
 __author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"

@@ -1,10 +1,10 @@
-import settings
+from src import settings
 import logging
 import telegram
-from key import token
-from gamehandler import GameHandler
+from src.key import token
+from src.gamehandler import GameHandler
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-from exceptions import GoGameException
+from src.exceptions import GoGameException
 import random
 
 __author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"

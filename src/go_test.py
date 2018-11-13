@@ -1,4 +1,4 @@
-from go import GoGame
+from src.go import GoGame
 
 
 go = GoGame()

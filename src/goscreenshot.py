@@ -1,7 +1,7 @@
 from PIL import Image, ImageDraw
-from go import Color
+from src.go import Color
 from io import BytesIO
-import settings
+from src import settings
 
 __author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
 __version__ = "0.1"

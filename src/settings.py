@@ -59,4 +59,4 @@ error_not_enough_players = "Another player needs to join the game!"
 error_self_capture = "The move is a self-capture and is not allowed!"
 error_ko = "Move not allowed because of Ko rule"
 
-board_path = 'images/board.jpg'
+board_path = '../images/board.jpg'
