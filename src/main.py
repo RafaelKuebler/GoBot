@@ -39,6 +39,7 @@ def join(bot, update):
 
     send_message(bot, chat_id, f"*{settings.start_game_text}*")
     show_board(bot, update)
+    show_turn(bot, chat_id)
 
 
 def place(bot, update):
@@ -48,6 +49,7 @@ def place(bot, update):
     try:
         game_handler.place_stone(chat_id, user_id, coords)
         show_board(bot, update)
+        show_turn(bot, chat_id)
     except GoGameException as exception:
         send_message(bot, chat_id, str(exception))
 
@@ -56,20 +58,29 @@ def pass_turn(bot, update):
     chat_id = update.message.chat_id
     user_id = update.message.from_user.id
     user_name = update.message.from_user.name.replace('\'', '')
-    game_handler.pass_turn(chat_id, user_id)
-
-    message = settings.player_passed_text.format(user_name)
-    send_message(bot, chat_id, message)
-    show_board(bot, update)
+    try:
+        game_handler.pass_turn(chat_id, user_id)
+        if game_handler.both_players_passed(chat_id):
+            game_over(bot, chat_id)
+            return
+        message = settings.player_passed_text.format(user_name)
+        send_message(bot, chat_id, message)
+        show_board(bot, update)
+        show_turn(bot, chat_id)
+    except GoGameException as exception:
+        send_message(bot, chat_id, str(exception))
 
 
 def show_board(bot, update):
     chat_id = update.message.chat_id
+    image = game_handler.create_image(chat_id)
+    bot.send_photo(chat_id, photo=image)
+
+
+def show_turn(bot, chat_id):
     cur_player_name = game_handler.cur_player_name(chat_id)
     cur_color = game_handler.cur_player_color(chat_id)
-    image = game_handler.create_image(chat_id)
 
-    bot.send_photo(chat_id, photo=image)
     message = settings.cur_turn_text.format(cur_player_name, cur_color)
     send_message(bot, chat_id, message)
 
@@ -94,9 +105,14 @@ def save_games():
     game_handler.save_games()
 
 
+def game_over(bot, chat_id):
+    score = game_handler.calculate_result(chat_id)
+    game_handler.remove_game(chat_id)
+    send_message(bot, chat_id, settings.game_over_text)
+
+
 if __name__ == '__main__':
-    logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                        level=logging.INFO)
+    logging.basicConfig(format=settings.logger_format, level=logging.INFO)
 
     updater = Updater(token=token)
     dispatcher = updater.dispatcher
@@ -117,5 +133,5 @@ if __name__ == '__main__':
 
     atexit.register(save_games)
 
-    print('Starting polling')
+    print('Polling...')
     updater.start_polling()

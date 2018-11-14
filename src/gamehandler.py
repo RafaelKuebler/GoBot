@@ -11,10 +11,12 @@ class Game:
         self.players = [player]
         self.chat_id = chat_id
         self.cur_player = None
+        self.player_passed = [False]
 
     def add_player(self, player):
         self.players.append(player)
         self.cur_player = player
+        self.player_passed.append(False)
 
 
 class GameHandler:
@@ -42,7 +44,25 @@ class GameHandler:
         exceptions.check_player_permissions(player, game.players)
         exceptions.check_player_turn(player, game.cur_player)
         game.go_game.place_stone(coord)
+        del game.player_passed[0]
+        game.player_passed.append(False)
         self.change_turn(game)
+
+    def pass_turn(self, chat_id, player):
+        game = self.get_game_with_chat_id(chat_id)
+        exceptions.check_all_players_ready(game)
+        exceptions.check_player_permissions(player, game.players)
+        exceptions.check_player_turn(player, game.cur_player)
+        del game.player_passed[0]
+        game.player_passed.append(True)
+        self.change_turn(game)
+
+    def both_players_passed(self, chat_id):
+        game = self.get_game_with_chat_id(chat_id)
+        for passed in game.player_passed:
+            if not passed:
+                return False
+        return True
 
     @staticmethod
     def change_turn(game):
@@ -52,6 +72,10 @@ class GameHandler:
         else:
             game.cur_player = game.players[0]
 
+    def calculate_result(self, chat_id):
+        game = self.get_game_with_chat_id(chat_id)
+        return game.go_game.calculate_result()
+
     def cur_player_name(self, chat_id):
         game = self.get_game_with_chat_id(chat_id)
         return self.players[game.cur_player]
@@ -59,14 +83,6 @@ class GameHandler:
     def cur_player_color(self, chat_id):
         game = self.get_game_with_chat_id(chat_id)
         return game.go_game.cur_color.value
-
-    def pass_turn(self, chat_id, player):
-        # TODO: game over when both players passed
-        game = self.get_game_with_chat_id(chat_id)
-        exceptions.check_all_players_ready(game)
-        exceptions.check_player_permissions(player, game.players)
-        exceptions.check_player_turn(player, game.cur_player)
-        self.change_turn(game)
 
     def create_image(self, chat_id):
         game = self.get_game_with_chat_id(chat_id)
@@ -76,6 +92,10 @@ class GameHandler:
     def save_games(self):
         # TODO: export all games to hard disc
         pass
+
+    def remove_game(self, chat_id):
+        if chat_id in self.games:
+            del self.games[chat_id]
 
     def get_game_with_chat_id(self, chat_id):
         exceptions.check_chat_id(chat_id, self.games)

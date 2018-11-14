@@ -12,6 +12,7 @@ start_game_text = "Let the game begin!"
 unknown_command_text = "Sorry, I didn't understand that command."
 player_passed_text = "Player {} passed"
 cur_turn_text = "It is {}'s ({}) turn"
+game_over_text = "The game is over. Well played!"
 
 patience_proverbs = [
     "One moment of patience may ward off a great disaster; one moment of impatience may ruin a whole life.",
@@ -65,3 +66,4 @@ error_ko = "Move not allowed because of Ko rule"
 
 board_path = '../images/board.jpg'
 image_extension = 'JPEG'
+logger_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
