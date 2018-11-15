@@ -1,6 +1,9 @@
 # GoSenseiBot
 
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![Build Status](https://travis-ci.org/RafaelKuebler/GoBot.png?branch=master)](https://travis-ci.org/RafaelKuebler/GoBot)
+[![Ask Me Anything !](https://img.shields.io/badge/Ask%20me-anything-1abc9c.svg)](https://GitHub.com/Naereen/ama)
+[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
 
 *GoSenseiBot* is a [Telegram](https://telegram.org/) bot that allows you to play the very
 popular game *GO* in a Telegram chat with you friends!
