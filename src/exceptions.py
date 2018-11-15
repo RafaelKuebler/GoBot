@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# coding: utf-8
+
 from src import settings
 import random
 
@@ -52,8 +55,9 @@ def check_chat_id(chat_id, games):
 
 def check_player_turn(player, cur_player):
     if player != cur_player:
-        proverb = f"_{random.choice(settings.patience_proverbs)}_"
-        raise IncorrectTurnException(f"{proverb}\n{settings.error_incorrect_turn}")
+        proverb = "_{}_".format(random.choice(settings.patience_proverbs))
+        message = "{}\n{}".format(proverb, settings.error_incorrect_turn)
+        raise IncorrectTurnException(message)
 
 
 def check_stone_coords(coords, board):

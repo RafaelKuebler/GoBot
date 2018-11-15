@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# coding: utf-8
+
 greeting = "*Hi!* I am *Go Sensei* and will take care of your *Go* game!"
 commands = "These are my available commands:\n" \
            "  /new - start a new game\n" \

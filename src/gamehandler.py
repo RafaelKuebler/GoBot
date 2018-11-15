@@ -5,9 +5,9 @@ __author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
 __version__ = "0.1"
 
 
-class Game:
+class Game(GoGame):
     def __init__(self, chat_id, player):
-        self.go_game = GoGame()
+        super().__init__()
         self.players = [player]
         self.chat_id = chat_id
         self.cur_player = None
@@ -17,6 +17,13 @@ class Game:
         self.players.append(player)
         self.cur_player = player
         self.player_passed.append(False)
+
+    def change_turn(self):
+        super().change_turn()
+        if self.cur_player == self.players[0]:
+            self.cur_player = self.players[1]
+        else:
+            self.cur_player = self.players[0]
 
 
 class GameHandler:
@@ -43,10 +50,10 @@ class GameHandler:
         exceptions.check_all_players_ready(game)
         exceptions.check_player_permissions(player, game.players)
         exceptions.check_player_turn(player, game.cur_player)
-        game.go_game.place_stone(coord)
+        game.place_stone(coord)
         del game.player_passed[0]
         game.player_passed.append(False)
-        self.change_turn(game)
+        game.change_turn()
 
     def pass_turn(self, chat_id, player):
         game = self.get_game_with_chat_id(chat_id)
@@ -55,7 +62,7 @@ class GameHandler:
         exceptions.check_player_turn(player, game.cur_player)
         del game.player_passed[0]
         game.player_passed.append(True)
-        self.change_turn(game)
+        game.change_turn()
 
     def both_players_passed(self, chat_id):
         game = self.get_game_with_chat_id(chat_id)
@@ -64,17 +71,9 @@ class GameHandler:
                 return False
         return True
 
-    @staticmethod
-    def change_turn(game):
-        game.go_game.change_turn()
-        if game.cur_player == game.players[0]:
-            game.cur_player = game.players[1]
-        else:
-            game.cur_player = game.players[0]
-
     def calculate_result(self, chat_id):
         game = self.get_game_with_chat_id(chat_id)
-        return game.go_game.calculate_result()
+        return game.calculate_result()
 
     def cur_player_name(self, chat_id):
         game = self.get_game_with_chat_id(chat_id)
@@ -82,12 +81,12 @@ class GameHandler:
 
     def cur_player_color(self, chat_id):
         game = self.get_game_with_chat_id(chat_id)
-        return game.go_game.cur_color.value
+        return game.cur_color.value
 
     def create_image(self, chat_id):
         game = self.get_game_with_chat_id(chat_id)
-        screenshot = goscreenshot.take_screenshot(game.go_game.board)
-        return screenshot
+        image = goscreenshot.take_screenshot(game.board)
+        return image
 
     def save_games(self):
         # TODO: export all games to hard disc

@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# coding: utf-8
+
 from PIL import Image, ImageDraw
 from src.go import Color
 from io import BytesIO

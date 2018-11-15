@@ -1,5 +1,7 @@
 # GoSenseiBot
 
+[![Build Status](https://travis-ci.org/RafaelKuebler/GoBot.png?branch=master)](https://travis-ci.org/RafaelKuebler/GoBot)
+
 *GoSenseiBot* is a [Telegram](https://telegram.org/) bot that allows you to play the very
 popular game *GO* in a Telegram chat with you friends!
 

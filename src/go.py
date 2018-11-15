@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# coding: utf-8
+
 from enum import Enum
 from src import exceptions
 
@@ -76,7 +79,7 @@ class Stone:
             exceptions.check_self_capture()
 
     def __repr__(self):
-        return f"({self.color}: {self.coords})"
+        return "({}: {})".format(self.color, self.coords)
 
 
 class Group:
@@ -101,7 +104,7 @@ class Group:
             stone.capture()
 
     def __repr__(self):
-        return f"({self.color}: {self.stones})"
+        return "({}: {})".format(self.color, self.stones)
 
 
 class Board:

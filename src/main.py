@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# coding: utf-8
+
 import logging
 import telegram
 import random
@@ -12,7 +15,6 @@ __author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
 __version__ = "0.1"
 
 game_handler = GameHandler()
-# TODO: Tests!!!
 
 
 def start(bot, update):
@@ -38,7 +40,8 @@ def join(bot, update):
 
     game_handler.join(chat_id, user_id, user_name)
 
-    send_message(bot, chat_id, f"*{settings.start_game_text}*")
+    message = "*{}*".format(settings.start_game_text)
+    send_message(bot, chat_id, message)
     show_board(bot, update)
     show_turn(bot, chat_id)
 
@@ -90,7 +93,8 @@ def display_proverb(bot, update):
     chat_id = update.message.chat_id
 
     proverb = random.choice(settings.go_proverbs)
-    send_message(bot, chat_id, f"\"_{proverb}_\"")
+    message = "\"_{}_\"".format(proverb)
+    send_message(bot, chat_id, message)
 
 
 def unknown(bot, update):
