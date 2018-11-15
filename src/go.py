@@ -108,7 +108,7 @@ class Group:
 
 
 class Board:
-    def __init__(self, size_x, size_y):
+    def __init__(self, size_x=9, size_y=9):
         self.size_x = size_x
         self.size_y = size_y
         self.stones = self._init_stones(self.size_x, self.size_y)

@@ -1,9 +1,9 @@
 # GoSenseiBot
 
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![Build Status](https://travis-ci.org/RafaelKuebler/GoBot.png?branch=master)](https://travis-ci.org/RafaelKuebler/GoBot)
-[![Ask Me Anything !](https://img.shields.io/badge/Ask%20me-anything-1abc9c.svg)](https://GitHub.com/Naereen/ama)
 [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
+![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)
+![Ask Me Anything !](https://img.shields.io/badge/Ask%20me-anything-1abc9c.svg)
 
 *GoSenseiBot* is a [Telegram](https://telegram.org/) bot that allows you to play the very
 popular game *GO* in a Telegram chat with you friends!
@@ -15,7 +15,7 @@ you a visualization of the game board after every move.
 
 To try him out, just type **@GoSenseiBot** into your chat or add it to one of your groups!
 
-(Heads up: sadly, I cannot guarantee that the server will be running continuously...)
+(Heads up: sadly, I cannot guarantee that the server will be running continuously... If you feel like giving it a go just contact me!)
 
 ## Built With
 

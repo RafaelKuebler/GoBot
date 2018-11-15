@@ -9,7 +9,21 @@ class TestStone:
 
 
 class TestGroup:
-    pass
+    def test_color(self):
+        colors = [Color.WHITE, Color.BLACK]
+        for color in colors:
+            group = Group(color)
+            assert group.color == color
+
+    def test_stones(self):
+        colors = [Color.WHITE, Color.BLACK]
+        for color in colors:
+            group = Group(color)
+            assert not group.stones
+
+    # TODO: test merge
+    # TODO: test capture
+    # TODO: test_liberties
 
 
 class TestBoard:
