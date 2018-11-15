@@ -1,14 +1,41 @@
 #!/usr/bin/python
 # coding: utf-8
 
-from src.go import GoGame, Color
+from src.go import Stone, Group, Board, GoGame, Color
+
+
+class TestStone:
+    pass
+
+
+class TestGroup:
+    pass
+
+
+class TestBoard:
+    def test_size(self):
+        sizes = [(9, 9), (13, 13), (19, 19)]
+        for size in sizes:
+            x, y = size
+            board = Board(x, y)
+            assert board.size_x == x
+            assert board.size_y == y
+
+    def test_stones(self):
+        sizes = [(9, 9), (13, 13), (19, 19)]
+        for size in sizes:
+            x, y = size
+            board = Board(x, y)
+            assert len(board.stones) == x
+            for row in board.stones:
+                assert len(row) == y
+
+    def test_last_stone_placed(self):
+        board = Board(9, 9)
+        assert board.last_stone_placed is None
 
 
 class TestGoGame:
-    def test_init(self):
-        game = GoGame()
-        assert game is not None
-
     def test_first_player_black(self):
         game = GoGame()
         assert game.cur_color == Color.BLACK
