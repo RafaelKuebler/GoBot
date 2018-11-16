@@ -5,11 +5,11 @@ import logging
 import telegram
 import random
 import atexit
-from src import settings
-from src.key import token
-from src.gamehandler import GameHandler
+import settings
+from exceptions import GoGameException
+from key import token
+from gamehandler import GameHandler
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-from src.exceptions import GoGameException
 
 __author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
 __version__ = "0.1"
@@ -17,6 +17,7 @@ __version__ = "0.1"
 game_handler = GameHandler()
 
 
+# TODO: use short version of commands
 def start(bot, update):
     chat_id = update.message.chat_id
     send_message(bot, chat_id, settings.greeting)

@@ -2,7 +2,7 @@
 # coding: utf-8
 
 from enum import Enum
-from src import exceptions
+import exceptions
 
 __author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
 __version__ = "0.1"

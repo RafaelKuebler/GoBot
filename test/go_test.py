@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # coding: utf-8
 
-from src.go import Stone, Group, Board, GoGame, Color
+from go.go import Group, Board, GoGame, Color
 
 
 class TestStone:

@@ -1,5 +1,6 @@
-from src.go import GoGame
-from src import goscreenshot, exceptions
+from go.go import GoGame
+from go.goscreenshot import take_screenshot
+import exceptions
 
 __author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
 __version__ = "0.1"
@@ -85,7 +86,7 @@ class GameHandler:
 
     def create_image(self, chat_id):
         game = self.get_game_with_chat_id(chat_id)
-        image = goscreenshot.take_screenshot(game.board)
+        image = take_screenshot(game.board)
         return image
 
     def save_games(self):

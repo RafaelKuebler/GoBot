@@ -2,9 +2,9 @@
 # coding: utf-8
 
 from PIL import Image, ImageDraw
-from src.go import Color
+from .go import Color
 from io import BytesIO
-from src import settings
+import settings
 
 __author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
 __version__ = "0.1"

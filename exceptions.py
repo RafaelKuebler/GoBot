@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # coding: utf-8
 
-from src import settings
+import settings
 import random
 
 __author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
