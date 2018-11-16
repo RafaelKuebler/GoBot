@@ -61,6 +61,8 @@ def check_player_turn(player, cur_player):
 
 
 def check_stone_coords(coords, board):
+    if len(coords) != 2:
+        raise InvalidCoordinatesException(settings.error_invalid_coords)
     x_in_range = coords[0] not in range(ord('a'), board.size_x)
     y_in_range = coords[1] not in range(0, board.size_y)
     if not x_in_range or not y_in_range:

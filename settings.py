@@ -67,6 +67,6 @@ error_permissions = "You are not part of a current game and therefore not allowe
 error_self_capture = "The move is a self-capture and is not allowed!"
 error_ko = "Move not allowed because of Ko rule"
 
-board_path = '../images/board.jpg'
+board_path = 'images/board.jpg'
 image_extension = 'JPEG'
 logger_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
