@@ -51,28 +51,29 @@ class TestBoard:
 
 class TestGoGame:
     def test_first_player_black(self):
-        game = GoGame()
+        game = GoGame(9, 9)
         assert game.cur_color == Color.BLACK
 
     def test_board(self):
-        game = GoGame()
+        game = GoGame(9, 9)
         assert game.board is not None
 
     def test_change_turn(self):
-        game = GoGame()
+        game = GoGame(9, 9)
         game.change_turn()
         assert game.cur_color == Color.WHITE
         game.change_turn()
         assert game.cur_color == Color.BLACK
 
     def test_transform_coords(self):
-        game = GoGame()
+        game = GoGame(9, 9)
         coords = ['a1', 'e2', 'e5']
         expected = [(0, 0), (4, 1), (4, 4)]
         for i in range(len(coords)):
             transformed = game.transform_coords(coords[i])
             assert transformed == expected[i]
 
+    # TODO: test many board sizes
     # TODO: test place stone
     # TODO: test calculate result
     # TODO: test mark stone

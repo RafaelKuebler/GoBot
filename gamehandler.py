@@ -1,5 +1,5 @@
 from go.go import GoGame
-from go.goscreenshot import take_screenshot
+from go.goscreenshot import GoScreenshot
 import exceptions
 
 __author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
@@ -7,12 +7,13 @@ __version__ = "0.1"
 
 
 class Game(GoGame):
-    def __init__(self, chat_id, player):
-        super().__init__()
+    def __init__(self, chat_id, player, board_x, board_y):
+        super().__init__(board_x, board_y)
         self.players = [player]
         self.chat_id = chat_id
         self.cur_player = None
         self.player_passed = [False]
+        self.screenshot = GoScreenshot(board_x, board_y)
 
     def add_player(self, player):
         self.players.append(player)
@@ -37,7 +38,7 @@ class GameHandler:
             game = self.games[chat_id]
             exceptions.check_player_permissions(player_id, game.players)
             self.players[player_id] = player_name
-        self.games[chat_id] = Game(chat_id, player_id)
+        self.games[chat_id] = Game(chat_id, player_id, 10, 10)
 
     def join(self, chat_id, player_id, player_name):
         # TODO: import of detected saved games
@@ -86,7 +87,7 @@ class GameHandler:
 
     def create_image(self, chat_id):
         game = self.get_game_with_chat_id(chat_id)
-        image = take_screenshot(game.board)
+        image = game.screenshot.take_screenshot(game.board)
         return image
 
     def save_games(self):

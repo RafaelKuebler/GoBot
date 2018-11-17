@@ -126,10 +126,10 @@ class Board:
 
 
 class GoGame:
-    def __init__(self):
+    def __init__(self, board_x, board_y):
         self.cur_color = Color.BLACK
         # TODO: Allow user to choose board size
-        self.board = Board(9, 9)
+        self.board = Board(board_x, board_y)
 
     def place_stone(self, coords):
         exceptions.check_stone_coords(coords, self.board)

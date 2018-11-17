@@ -17,7 +17,6 @@ __version__ = "0.1"
 game_handler = GameHandler()
 
 
-# TODO: use short version of commands
 def start(bot, update):
     chat_id = update.message.chat_id
     send_message(bot, chat_id, settings.greeting)
