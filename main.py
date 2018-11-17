@@ -47,11 +47,10 @@ def join(bot, update):
     show_turn(bot, chat_id)
 
 
-def place(bot, update):
+def place(bot, update, args):
     chat_id = update.message.chat_id
     user_id = update.message.from_user.id
-    coords = update.message.text.replace('/place ', '/p ')
-    coords = update.message.text.replace('/p ', '')
+    coords = args[0]
     try:
         game_handler.place_stone(chat_id, user_id, coords)
         show_board(bot, update)
@@ -128,7 +127,7 @@ if __name__ == '__main__':
         CommandHandler(['start', 's'], start),
         CommandHandler(['new', 'n'], new_game),
         CommandHandler(['join', 'j'], join),
-        CommandHandler(['place', 'p'], place),
+        CommandHandler(['place', 'p'], place, pass_args=True),
         CommandHandler('pass', pass_turn),
         CommandHandler(['show_board', 'sh'], show_board),
         CommandHandler(['proverb', 'pr'], display_proverb),
