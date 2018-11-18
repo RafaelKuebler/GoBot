@@ -1,11 +1,72 @@
 #!/usr/bin/python
 # coding: utf-8
 
+import pytest
+import sys
+sys.path.append('../')
 from go.go import Stone, Group, Board, GoGame, Color
+from exceptions import SelfCaptureException
 
 
 class TestStone:
-    pass
+    def test_color(self):
+        colors = [Color.BLACK, Color.WHITE]
+        for color in colors:
+            stone = Stone(5, 5, color, Board())
+            assert stone.color == color
+
+    def test_coords(self):
+        stone = Stone(5, 5, Color.BLACK, Board())
+        assert stone.coords == (5, 5)
+
+    def test_stone_on_board(self):
+        board = Board()
+        stone = Stone(5, 5, Color.WHITE, board)
+        assert board.stones[5][5] == stone
+
+    def test_capture_single(self):
+        board = Board()
+        Stone(5, 5, Color.WHITE, board)
+        Stone(5, 4, Color.BLACK, board)
+        Stone(5, 6, Color.BLACK, board)
+        Stone(4, 5, Color.BLACK, board)
+        Stone(6, 5, Color.BLACK, board)
+        assert board.stones[5][5] is None
+
+    def test_capture_group(self):
+        board = Board()
+        Stone(5, 5, Color.WHITE, board)
+        Stone(5, 6, Color.WHITE, board)
+        Stone(5, 4, Color.BLACK, board)
+        Stone(5, 7, Color.BLACK, board)
+        Stone(4, 5, Color.BLACK, board)
+        Stone(4, 6, Color.BLACK, board)
+        Stone(6, 5, Color.BLACK, board)
+        Stone(6, 6, Color.BLACK, board)
+        assert board.stones[5][5] is None
+        assert board.stones[5][6] is None
+
+    def test_self_capture(self):
+        with pytest.raises(SelfCaptureException):
+            board = Board()
+            Stone(5, 5, Color.WHITE, board)
+            Stone(5, 4, Color.BLACK, board)
+            Stone(5, 7, Color.BLACK, board)
+            Stone(4, 5, Color.BLACK, board)
+            Stone(4, 6, Color.BLACK, board)
+            Stone(6, 5, Color.BLACK, board)
+            Stone(6, 6, Color.BLACK, board)
+            Stone(5, 6, Color.WHITE, board)
+
+    def test_neighbors(self):
+        stone = Stone(5, 5, Color.WHITE, Board())
+        neighbors = {(4, 5), (6, 5), (5, 4), (5, 6)}
+        assert neighbors.issubset(stone.neighbors)
+
+    def test_neighbors_border(self):
+        stone = Stone(0, 0, Color.WHITE, Board())
+        neighbors = {(1, 0), (0, 1)}
+        assert neighbors.issubset(stone.neighbors)
 
 
 class TestGroup:
@@ -66,7 +127,7 @@ class TestGroup:
 
 
 class TestBoard:
-    def test_size(self):
+    def test_sizes(self):
         sizes = [(9, 9), (13, 13), (19, 19)]
         for size in sizes:
             x, y = size
@@ -97,6 +158,14 @@ class TestGoGame:
         game = GoGame()
         assert game.board is not None
 
+    def test_board_sizes(self):
+        sizes = [(9, 9), (13, 13), (19, 19)]
+        for size in sizes:
+            x, y = size
+            game = GoGame(x, y)
+            assert game.board.size_x == x
+            assert game.board.size_y == y
+
     def test_change_turn(self):
         game = GoGame()
         game.change_turn()
@@ -112,7 +181,5 @@ class TestGoGame:
             transformed = game.transform_coords(coords[i])
             assert transformed == expected[i]
 
-    # TODO: test many board sizes
     # TODO: test place stone
     # TODO: test calculate result
-    # TODO: test mark stone

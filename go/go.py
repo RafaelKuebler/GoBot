@@ -20,6 +20,7 @@ class Stone:
         self.board = board
         self.board.stones[x][y] = self
         self.group = self.search_group()
+
         self.capture_neighbors()
         self.check_self_capture()
         self.board.last_stone_placed = self
