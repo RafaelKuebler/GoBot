@@ -126,7 +126,7 @@ class Board:
 
 
 class GoGame:
-    def __init__(self, board_x, board_y):
+    def __init__(self, board_x=9, board_y=9):
         self.cur_color = Color.BLACK
         # TODO: Allow user to choose board size
         self.board = Board(board_x, board_y)
