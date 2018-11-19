@@ -2,10 +2,8 @@
 # coding: utf-8
 
 import pytest
-import sys
-sys.path.append('../')
-from go.go import Stone, Group, Board, GoGame, Color
-from exceptions import SelfCaptureException
+from gobot.go.go import Stone, Group, Board, GoGame, Color
+from gobot.go.exceptions import SelfCaptureException
 
 
 class TestStone:

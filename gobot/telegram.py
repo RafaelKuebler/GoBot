@@ -5,11 +5,10 @@ import logging
 import telegram
 import random
 import atexit
-import settings
-from exceptions import GoGameException
-from key import token
-from gamehandler import GameHandler
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from . import settings
+from .exceptions import GoGameException
+from .gamehandler import GameHandler
 
 __author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
 __version__ = "0.1"
@@ -111,15 +110,15 @@ def save_games():
 
 
 def game_over(bot, chat_id):
-    score = game_handler.calculate_result(chat_id)
+    # score = game_handler.calculate_result(chat_id)
     game_handler.remove_game(chat_id)
     send_message(bot, chat_id, settings.game_over_text)
 
 
-if __name__ == '__main__':
+def start_bot(key):
     logging.basicConfig(format=settings.logger_format, level=logging.INFO)
 
-    updater = Updater(token=token)
+    updater = Updater(token=key)
     dispatcher = updater.dispatcher
 
     message_handlers = [

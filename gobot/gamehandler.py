@@ -1,6 +1,6 @@
-from go.go import GoGame
-from go.goscreenshot import GoScreenshot
-import exceptions
+from gobot.go.go import GoGame
+from gobot.go.goscreenshot import GoScreenshot
+from . import exceptions
 
 __author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
 __version__ = "0.1"

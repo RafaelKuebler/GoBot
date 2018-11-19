@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # coding: utf-8
 
+
 greeting = "*Hi!* I am *Go Sensei* and will take care of your *Go* game!"
 commands = "These are my available commands:\n" \
            "  /new - start a new game\n" \
@@ -59,14 +60,8 @@ ko_proverb = "If you don't like Ko don't Play Go."
 
 error_inexistent_game = "Please start a game with /new first!"
 error_incorrect_turn = "It is not your turn!"
-error_invalid_coords = "This coordinate does not exist on the board!"
-error_coord_occupied = "This coordinate already holds a stone!"
 error_not_enough_players = "Another player needs to join the game with /join!"
 error_already_enough_players = "The game already has 2 players!"
 error_permissions = "You are not part of a current game and therefore not allowed to perform this action!"
-error_self_capture = "The move is a self-capture and is not allowed!"
-error_ko = "Move not allowed because of Ko rule"
 
-board_path = 'images/board.jpg'
-image_extension = 'JPEG'
 logger_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
