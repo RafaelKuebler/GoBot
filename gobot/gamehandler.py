@@ -38,7 +38,7 @@ class GameHandler:
             game = self.games[chat_id]
             exceptions.check_player_permissions(player_id, game.players)
             self.players[player_id] = player_name
-        self.games[chat_id] = Game(chat_id, player_id, 10, 10)
+        self.games[chat_id] = Game(chat_id, player_id, 9, 9)
 
     def join(self, chat_id, player_id, player_name):
         # TODO: import of detected saved games
