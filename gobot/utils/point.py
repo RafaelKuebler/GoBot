@@ -83,9 +83,6 @@ class Point(object):
         x, y = tup
         return Point(self.x*x, self.y*y)
 
-    def __div__(self, point):
-        return self._map_div[type(point)](point)
-
     def __truediv__(self, point):
         return self._map_div[type(point)](point)
 

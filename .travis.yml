@@ -15,7 +15,3 @@ jobs:
       python: 3.5
     - <<: *tests    # Alias for anchor defined above
       python: 3.4
-
-    # Python 2
-    - <<: *tests
-      python: 2.7
