@@ -4,5 +4,7 @@ __pycache__/
 .idea/
 
 venv/
+coverage_html_report/
+.coverage
 
 *.url

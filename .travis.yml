@@ -6,7 +6,7 @@ jobs:
       stage: Tests
       python: 3.6
       install: pip install -r requirements.txt
-      script: pytest --cov=gobot
+      script: pytest
 
     # Also test for some other versions
     # <<: is the extend operator = add all fields and extend or modify them afterwards
