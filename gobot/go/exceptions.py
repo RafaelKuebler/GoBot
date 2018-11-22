@@ -12,9 +12,9 @@ class GoGameException(Exception):
         super(GoGameException, self).__init__(message)
 
 
-class InvalidCoordinatesException(GoGameException):
+class InvalidCoordinateException(GoGameException):
     def __init__(self, message):
-        super(InvalidCoordinatesException, self).__init__(message)
+        super(InvalidCoordinateException, self).__init__(message)
 
 
 class CoordOccupiedException(GoGameException):
@@ -29,12 +29,12 @@ class SelfCaptureException(GoGameException):
 
 def check_stone_coords(coords, board):
     if not coords[1:].isdigit():
-        raise InvalidCoordinatesException(settings.error_invalid_coords)
+        raise InvalidCoordinateException(settings.error_invalid_coords)
 
     x_in_range = ord('a') <= ord(coords[0]) < ord('a') + board.size_x
     y_in_range = 1 <= int(coords[1:]) <= board.size_y
     if not x_in_range or not y_in_range:
-        raise InvalidCoordinatesException(settings.error_invalid_coords)
+        raise InvalidCoordinateException(settings.error_invalid_coords)
 
 
 def check_pos_taken(x, y, board):

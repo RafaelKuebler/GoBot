@@ -3,7 +3,7 @@
 
 import pytest
 from gobot.go.go import Stone, Group, Board, GoGame, Color
-from gobot.go.exceptions import SelfCaptureException
+from gobot.go.exceptions import SelfCaptureException, InvalidCoordinateException
 
 
 class TestStone:
@@ -133,14 +133,19 @@ class TestBoard:
             assert board.size_x == x
             assert board.size_y == y
 
-    def test_stones(self):
+            assert len(board.stones) == x
+            for row in board.stones:
+                assert len(row) == y
+
+    def test_stones_empty(self):
         sizes = [(9, 9), (13, 13), (19, 19)]
         for size in sizes:
             x, y = size
             board = Board(x, y)
-            assert len(board.stones) == x
-            for row in board.stones:
-                assert len(row) == y
+
+            for i in range(x):
+                for j in range(y):
+                    assert board.stones[i][j] is None
 
     def test_last_stone_placed(self):
         board = Board()
@@ -171,13 +176,26 @@ class TestGoGame:
         game.change_turn()
         assert game.cur_color == Color.BLACK
 
-    def test_transform_coords(self):
+    def test_place_stone(self):
         game = GoGame()
         coords = ['a1', 'e2', 'e5']
         expected = [(0, 0), (4, 1), (4, 4)]
         for i in range(len(coords)):
-            transformed = game.transform_coords(coords[i])
-            assert transformed == expected[i]
+            game.place_stone(coords[i])
+            x, y = expected[i]
+            assert game.board.stones[x][y] is not None
 
-    # TODO: test place stone
-    # TODO: test calculate result
+    def test_place_stone_invalid(self):
+        game = GoGame(9, 9)
+        coords = ['x9', 'y22', 'o2']
+        for i in range(len(coords)):
+            with pytest.raises(InvalidCoordinateException):
+                game.place_stone(coords[i])
+
+    @pytest.mark.skip(reason="not implemented yet")
+    def test_ko(self):
+        pass
+
+    @pytest.mark.skip(reason="not implemented yet")
+    def test_calculate_result(self):
+        pass

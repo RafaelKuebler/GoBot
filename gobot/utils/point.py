@@ -86,9 +86,6 @@ class Point(object):
     def __truediv__(self, point):
         return self._map_div[type(point)](point)
 
-    def __floordiv__(self, point):
-        return self._map_div[type(point)](point)
-
     def div_point(self, point):
         return Point(self.x / point.x, self.y / point.y)
 

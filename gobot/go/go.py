@@ -134,7 +134,7 @@ class GoGame:
 
     def place_stone(self, coords):
         exceptions.check_stone_coords(coords, self.board)
-        x, y = self.transform_coords(coords)
+        x, y = self._transform_coords(coords)
         exceptions.check_pos_taken(x, y, self.board)
         # TODO: Implement Ko rule
         Stone(x, y, self.cur_color, self.board)
@@ -154,7 +154,7 @@ class GoGame:
         return 0, 0
 
     @staticmethod
-    def transform_coords(coords):
+    def _transform_coords(coords):
         # TODO: implement notation as in https://senseis.xmp.net/?Coordinates
         letter = ord(coords[0]) - ord('a')
         number = int(coords[1]) - 1

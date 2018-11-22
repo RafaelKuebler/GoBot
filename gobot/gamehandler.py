@@ -27,7 +27,6 @@ class Game(GoGame):
         else:
             self.cur_player = self.players[0]
 
-
 class GameHandler:
     def __init__(self):
         self.games = {}
