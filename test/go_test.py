@@ -5,6 +5,8 @@ import pytest
 from gobot.go.go import Stone, Group, Board, GoGame, Color
 from gobot.go.exceptions import SelfCaptureException, InvalidCoordinateException
 
+__author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
+__version__ = "0.1"
 
 class TestStone:
     def test_color(self):
@@ -122,6 +124,21 @@ class TestGroup:
         liberties = {(5, 4), (6, 4), (7, 5), (6, 6), (5, 7), (4, 6), (4, 5)}
         group_liberties = stone.group.liberties
         assert liberties.issubset(group_liberties)
+
+    def test_capture_border(self):
+        board = Board()
+        Stone(5, 0, Color.WHITE, board)
+        Stone(4, 0, Color.BLACK, board)
+        Stone(6, 0, Color.BLACK, board)
+        Stone(5, 1, Color.BLACK, board)
+        assert board.stones[5][0] is None
+
+    def test_capture_corner(self):
+        board = Board()
+        Stone(0, 0, Color.WHITE, board)
+        Stone(1, 0, Color.BLACK, board)
+        Stone(0, 1, Color.BLACK, board)
+        assert board.stones[0][0] is None
 
 
 class TestBoard:

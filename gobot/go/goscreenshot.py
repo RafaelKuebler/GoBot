@@ -13,14 +13,18 @@ __version__ = "0.1"
 
 class GoScreenshot:
     def __init__(self, board_x, board_y):
+        self.board_x = board_x
+        self.board_y = board_y
+        self.WHITE = (255, 255, 255, 0)
+        self.BLACK = (0, 0, 0, 0)
+
+    def _load_img(self):
         self.BACKGROUND = settings.board_path
         self.img = Image.open(self.BACKGROUND)
         self.draw = ImageDraw.Draw(self.img)
 
-        self.WHITE = (255, 255, 255, 0)
-        self.BLACK = (0, 0, 0, 0)
         self.background = Point(*self.img.size)
-        self.board = Point(board_x, board_y)
+        self.board = Point(self.board_x, self.board_y)
         self.border = self.background * .125
         self.width = (self.background - self.border * 2) / (self.board - 1)
         self.start = self.background * .5 - self.width * (self.board - 1) * .5
@@ -29,6 +33,8 @@ class GoScreenshot:
 
     # TODO: create nice board graphic where indexing and board occupy space evenly
     def take_screenshot(self, board):
+        self._load_img()
+
         for column in board.stones:
             for stone in column:
                 mark = (stone == board.last_stone_placed)
