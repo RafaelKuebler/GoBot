@@ -15,7 +15,7 @@ class TestStone:
 
     def test_coords(self):
         stone = Stone(5, 5, Color.BLACK, Board())
-        assert stone.coords == (5, 5)
+        assert stone.coord == (5, 5)
 
     def test_stone_on_board(self):
         board = Board()

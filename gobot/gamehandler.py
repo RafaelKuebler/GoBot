@@ -9,25 +9,41 @@ __version__ = "0.1"
 
 
 class Game(GoGame):
-    def __init__(self, chat_id, board_x, board_y):
+    def __init__(self, board_x, board_y):
         super().__init__(board_x, board_y)
-        self.players = []
-        self.chat_id = chat_id
-        self.cur_player = None
-        self.player_passed = [False]
+        self.player_ids = []
+        self.cur_player_id = None
+        self._player_passed = []
         self.screenshot = GoScreenshot(board_x, board_y)
 
-    def add_player(self, player):
-        self.players.append(player)
-        self.cur_player = player
-        self.player_passed.append(False)
+    @property
+    def both_players_passed(self):
+        if not self._player_passed:
+            return False
+        return all(self._player_passed)
 
-    def change_turn(self):
+    def add_player(self, player_id):
+        self.player_ids.append(player_id)
+        self.cur_player_id = player_id
+        self._player_passed.append(False)
+
+    def place_stone(self, coord):
+        super().place_stone(coord)
+        del self._player_passed[0]
+        self._player_passed.append(False)
+        self._change_turn()
+
+    def pass_turn(self):
+        del self._player_passed[0]
+        self._player_passed.append(True)
+        self._change_turn()
+
+    def _change_turn(self):
         super().change_turn()
-        if self.cur_player == self.players[0]:
-            self.cur_player = self.players[1]
+        if self.cur_player_id == self.player_ids[0]:
+            self.cur_player_id = self.player_ids[1]
         else:
-            self.cur_player = self.players[0]
+            self.cur_player_id = self.player_ids[0]
 
 
 class GameHandler:
@@ -38,8 +54,8 @@ class GameHandler:
     def new_game(self, chat_id, player_id):
         if chat_id in self.games:
             game = self.games[chat_id]
-            self.check_player_permissions(player_id, game.players)
-        self.games[chat_id] = Game(chat_id, 9, 9)
+            self.check_player_permissions(player_id, game.player_ids)
+        self.games[chat_id] = Game(9, 9)
 
     def join(self, chat_id, player_id, player_name):
         # TODO: import of detected saved games
@@ -48,31 +64,23 @@ class GameHandler:
         self.players[player_id] = player_name
         game.add_player(player_id)
 
-    def place_stone(self, chat_id, player, coord):
+    def place_stone(self, chat_id, player_id, coord):
         game = self.get_game_with_chat_id(chat_id)
-        self.check_all_players_ready(game)
-        self.check_player_permissions(player, game.players)
-        self.check_player_turn(player, game.cur_player)
+        self.check_enough_players(game)
+        self.check_player_permissions(player_id, game.player_ids)
+        self.check_player_turn(player_id, game.cur_player_id)
         game.place_stone(coord)
-        del game.player_passed[0]
-        game.player_passed.append(False)
-        game.change_turn()
 
-    def pass_turn(self, chat_id, player):
+    def pass_turn(self, chat_id, player_id):
         game = self.get_game_with_chat_id(chat_id)
-        self.check_all_players_ready(game)
-        self.check_player_permissions(player, game.players)
-        self.check_player_turn(player, game.cur_player)
-        del game.player_passed[0]
-        game.player_passed.append(True)
-        game.change_turn()
+        self.check_enough_players(game)
+        self.check_player_permissions(player_id, game.player_ids)
+        self.check_player_turn(player_id, game.cur_player_id)
+        game.pass_turn()
 
     def both_players_passed(self, chat_id):
         game = self.get_game_with_chat_id(chat_id)
-        for passed in game.player_passed:
-            if not passed:
-                return False
-        return True
+        return all(game.player_passed)
 
     def calculate_result(self, chat_id):
         game = self.get_game_with_chat_id(chat_id)
@@ -111,13 +119,13 @@ class GameHandler:
             raise IncorrectTurnException(message)
 
     @staticmethod
-    def check_all_players_ready(game):
+    def check_enough_players(game):
         if game is None:
             raise UnexpectedNumberOfPlayersException(settings.error_not_enough_players)
 
     @staticmethod
     def check_player_limit(game):
-        if len(game.players) == 2:
+        if len(game.player_ids) == 2:
             raise UnexpectedNumberOfPlayersException(settings.error_already_enough_players)
 
     @staticmethod

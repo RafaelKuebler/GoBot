@@ -12,7 +12,7 @@ class Color(Enum):
 
 class Stone:
     def __init__(self, x, y, color, board):
-        self.coords = (x, y)
+        self.coord = (x, y)
         self.color = color
         self.board = board
         self.board.stones[x][y] = self
@@ -24,7 +24,7 @@ class Stone:
 
     @property
     def neighbors(self):
-        x, y = self.coords
+        x, y = self.coord
         neighbors = []
         if x > 0:
             neighbors.append((x - 1, y))
@@ -58,7 +58,7 @@ class Stone:
         return liberties
 
     def capture(self):
-        x, y = self.coords
+        x, y = self.coord
         self.board.stones[x][y] = None
 
     def search_group(self):
@@ -77,7 +77,7 @@ class Stone:
             exceptions.check_self_capture()
 
     def __repr__(self):
-        return "({}: {})".format(self.color, self.coords)
+        return "({}: {})".format(self.color, self.coord)
 
 
 class Group:
@@ -129,9 +129,9 @@ class GoGame:
         # TODO: Allow user to choose board size
         self.board = Board(board_x, board_y)
 
-    def place_stone(self, coords):
-        exceptions.check_stone_coords(coords, self.board)
-        x, y = self._transform_coords(coords)
+    def place_stone(self, coord):
+        exceptions.check_stone_coords(coord, self.board)
+        x, y = self._transform_coords(coord)
         exceptions.check_pos_taken(x, y, self.board)
         # TODO: Implement Ko rule
         Stone(x, y, self.cur_color, self.board)
@@ -142,7 +142,7 @@ class GoGame:
         else:
             self.cur_color = Color.BLACK
 
-    def mark_stone(self, coords):
+    def mark_stone(self, coord):
         # TODO: Allow players to mark stones
         pass
 
@@ -151,8 +151,8 @@ class GoGame:
         return 0, 0
 
     @staticmethod
-    def _transform_coords(coords):
+    def _transform_coords(coord):
         # TODO: implement notation as in https://senseis.xmp.net/?Coordinates
-        letter = ord(coords[0]) - ord('a')
-        number = int(coords[1]) - 1
+        letter = ord(coord[0]) - ord('a')
+        number = int(coord[1]) - 1
         return letter, number
