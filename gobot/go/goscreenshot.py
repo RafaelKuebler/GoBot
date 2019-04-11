@@ -44,14 +44,14 @@ class GoScreenshot:
     def _draw_stone(self, stone, marked):
         if stone is None:
             return
-        coords = Point(*stone.coords)
+        coord = Point(*stone.coord)
         color = self.WHITE if stone.color is Color.WHITE else self.BLACK
-        bb_start = self.start + self.width * coords - self.stone_size * .5
+        bb_start = self.start + self.width * coord - self.stone_size * .5
         bb_end = bb_start + self.stone_size
         self.draw.ellipse((*bb_start, *bb_end), fill=color)
 
         if marked:
             color = self.BLACK if stone.color is Color.WHITE else self.WHITE
-            bb_start = self.start + self.width * coords - self.mark_size * .5
+            bb_start = self.start + self.width * coord - self.mark_size * .5
             bb_end = bb_start + self.mark_size
             self.draw.rectangle((*bb_start, *bb_end), outline=color, width=3)
