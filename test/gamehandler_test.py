@@ -7,113 +7,150 @@ __version__ = "0.1"
 
 
 class TestGame:
-    def test_players_empty(self):
-        chat_id = "dummy_chat_id"
-        game = Game(chat_id, 9, 9)
-        assert not game.players
+    @pytest.fixture
+    def global_vars(self):
+        self.player1_id = "ExamplePlayer1ID"
+        self.player2_id = "ExamplePlayer2ID"
 
-    def test_add_player(self):
-        chat_id = "dummy_chat_id"
-        new_player = "ExamplePlayer1"
-        game = Game(chat_id, 9, 9)
-        game.add_player(new_player)
-        assert len(game.players) == 1
-        assert new_player in game.players
+    def setup_game(self, num_players=2):
+        game = Game(9, 9)
+        if num_players > 0:
+            game.add_player(self.player1_id)
+        if num_players > 1:
+            game.add_player(self.player2_id)
+        return game
 
-    def test_add_2_players(self):
-        chat_id = "dummy_chat_id"
-        new_player1 = "ExamplePlayerID1"
-        new_player2 = "ExamplePlayerID2"
-        game = Game(chat_id, 9, 9)
-        game.add_player(new_player1)
-        game.add_player(new_player2)
-        assert len(game.players) == 2
-        assert new_player1 in game.players
-        assert new_player2 in game.players
+    def test_players_empty(self, global_vars):
+        game = self.setup_game(num_players=0)
+
+        assert not game.player_ids
+        assert not game.cur_player_id
+        assert not game.both_players_passed
+
+    def test_add_player(self, global_vars):
+        game = self.setup_game(num_players=1)
+
+        assert len(game.player_ids) == 1
+        assert self.player1_id in game.player_ids
+        assert game.cur_player_id == self.player1_id
+        assert not game.both_players_passed
+
+    def test_add_2_players(self, global_vars):
+        game = self.setup_game(num_players=2)
+
+        assert len(game.player_ids) == 2
+        assert self.player1_id in game.player_ids
+        assert self.player2_id in game.player_ids
+        assert game.cur_player_id == self.player2_id
+        assert not game.both_players_passed
+
+    def test_place_stone(self, mocker, global_vars):
+        game = self.setup_game(num_players=2)
+        coord = "a1"
+        mock_place_stone = mocker.patch('gobot.go.go.GoGame.place_stone')
+
+        game.place_stone(coord)
+
+        mock_place_stone.assert_called_with(coord)
+        assert game.cur_player_id == self.player1_id
+        assert not game.both_players_passed
+
+    def test_pass_turn_once(self, global_vars):
+        game = self.setup_game(num_players=2)
+        game.pass_turn()
+
+        assert not game.both_players_passed
+        assert game.cur_player_id == self.player1_id
+
+    def test_pass_turn_twice(self, global_vars):
+        game = self.setup_game(num_players=2)
+        game.pass_turn()
+        game.pass_turn()
+
+        assert game.both_players_passed
+        assert game.cur_player_id == self.player2_id
 
 
 class TestGameHandler:
-    def test_new_game(self):
-        chat_id = "dummy_chat_id"
-        game_handler = GameHandler()
-        new_player_id = "ExamplePlayerID1"
-        new_player_name = "ExamplePlayerName1"
+    @pytest.fixture
+    def game_handler(self):
+        return GameHandler()
 
-        game_handler.new_game(chat_id, new_player_id)
-        game_handler.join(chat_id, new_player_id, new_player_name)
+    @pytest.fixture
+    def global_vars(self):
+        self.chat_id = "dummy_chat_id"
+        self.player1_id = "ExamplePlayer1ID"
+        self.player1_name = "ExamplePlayer1Name"
+        self.player2_id = "ExamplePlayer2ID"
+        self.player2_name = "ExamplePlayer2Name"
+
+    def setup_game(self, game_handler, num_players=2):
+        game_handler.new_game(self.chat_id, self.player1_id)
+        if num_players > 0:
+            game_handler.join(self.chat_id, self.player1_id, self.player1_name)
+        if num_players > 1:
+            game_handler.join(self.chat_id, self.player2_id, self.player2_name)
+
+    def test_new_game(self, game_handler, global_vars):
+        self.setup_game(game_handler, num_players=1)
+
+        assert len(game_handler.games) == 1
+        assert self.chat_id in game_handler.games
+        assert type(game_handler.games[self.chat_id]) is Game
         assert len(game_handler.players) == 1
-        assert new_player_id in game_handler.players
-        assert game_handler.players[new_player_id] == new_player_name
+        assert self.player1_id in game_handler.players
+        assert game_handler.players[self.player1_id] == self.player1_name
 
-    def test_restart_game(self):
-        chat_id = "dummy_chat_id"
-        game_handler = GameHandler()
-        new_player_id = "ExamplePlayerID1"
-        new_player_name = "ExamplePlayerName1"
+    def test_restart_game(self, game_handler, global_vars):
+        self.setup_game(game_handler, num_players=1)
 
-        game_handler.new_game(chat_id, new_player_id)
-        game_handler.join(chat_id, new_player_id, new_player_name)
-        game_handler.new_game(chat_id, new_player_id)
+        game_handler.new_game(self.chat_id, self.player1_id)
 
-    def test_no_permission_to_restart(self):
-        chat_id = "dummy_chat_id"
-        game_handler = GameHandler()
-        new_player_id = "ExamplePlayerID1"
+    def test_no_permission_to_restart(self, game_handler, global_vars):
+        self.setup_game(game_handler, num_players=1)
 
-        game_handler.new_game(chat_id, new_player_id)
         with pytest.raises(NoPermissionsException):
-            game_handler.new_game(chat_id, new_player_id)
+            game_handler.new_game(self.chat_id, self.player2_id)
 
-    def test_join_player(self):
-        game_handler = GameHandler()
-        chat_id = "dummy_chat_id"
-        new_player_id = "ExamplePlayerID1"
-        new_player_name = "ExamplePlayerName1"
+    def test_join_1_player(self, mocker, game_handler, global_vars):
+        self.setup_game(game_handler, num_players=0)
+        game = game_handler.games[self.chat_id]
+        add_player = mocker.patch.object(game, 'add_player')
 
-        game_handler.new_game(chat_id, new_player_id)
-        game_handler.join(chat_id, new_player_id, new_player_name)
+        game_handler.join(self.chat_id, self.player1_id, self.player1_name)
+
+        add_player.assert_called_with(self.player1_id)
         assert len(game_handler.players) == 1
-        assert new_player_id in game_handler.players
-        assert game_handler.players[new_player_id] == new_player_name
+        assert self.player1_id in game_handler.players
+        assert game_handler.players[self.player1_id] == self.player1_name
 
-    def test_join_2_players(self):
-        game_handler = GameHandler()
-        chat_id = "dummy_chat_id"
-        new_player_id1 = "ExamplePlayerID1"
-        new_player_name1 = "ExamplePlayerName1"
-        new_player_id2 = "ExamplePlayerID2"
-        new_player_name2 = "ExamplePlayerName2"
+    def test_join_2_players(self, game_handler, global_vars):
+        self.setup_game(game_handler)
 
-        game_handler.new_game(chat_id, new_player_id1)
-        game_handler.join(chat_id, new_player_id1, new_player_name1)
-        game_handler.join(chat_id, new_player_id2, new_player_name2)
         assert len(game_handler.players) == 2
-        assert new_player_id1 in game_handler.players
-        assert new_player_id2 in game_handler.players
-        assert game_handler.players[new_player_id1] == new_player_name1
-        assert game_handler.players[new_player_id2] == new_player_name2
+        assert self.player1_id in game_handler.players
+        assert self.player2_id in game_handler.players
+        assert game_handler.players[self.player1_id] == self.player1_name
+        assert game_handler.players[self.player2_id] == self.player2_name
 
-    def test_join_inexistent_game(self):
-        game_handler = GameHandler()
-        chat_id = "dummy_chat_id"
-        new_player_id = "ExamplePlayerID1"
-        new_player_name = "ExamplePlayerName1"
-
+    def test_join_inexistent_game(self, game_handler, global_vars):
         with pytest.raises(InexistentGameException):
-            game_handler.join(chat_id, new_player_id, new_player_name)
+            game_handler.join(self.chat_id, self.player1_id, self.player1_name)
 
-    def test_join_full_game(self):
-        with pytest.raises(InexistentGameException):
-            game_handler = GameHandler()
-            chat_id = "dummy_chat_id"
-            new_player_id1 = "ExamplePlayerID1"
-            new_player_name1 = "ExamplePlayerName1"
-            new_player_id2 = "ExamplePlayerID2"
-            new_player_name2 = "ExamplePlayerName2"
-            new_player_id3 = "ExamplePlayerID3"
-            new_player_name3 = "ExamplePlayerName3"
+    def test_join_full_game(self, game_handler, global_vars):
+        new_player_id3 = "ExamplePlayerID3"
+        new_player_name3 = "ExamplePlayerName3"
+        self.setup_game(game_handler)
 
-            game_handler.join(chat_id, new_player_id1, new_player_name1)
-            game_handler.join(chat_id, new_player_id2, new_player_name2)
-            with pytest.raises(UnexpectedNumberOfPlayersException):
-                game_handler.join(chat_id, new_player_id3, new_player_name3)
+        with pytest.raises(UnexpectedNumberOfPlayersException):
+            game_handler.join(self.chat_id, new_player_id3, new_player_name3)
+
+    def test_place_stone(self, mocker, game_handler, global_vars):
+        self.setup_game(game_handler)
+        game = game_handler.games[self.chat_id]
+        mock_place_stone = mocker.patch.object(game, 'place_stone')
+        coord = "a1"
+
+        game_handler.place_stone(self.chat_id, self.player2_id, coord)
+
+        mock_place_stone.assert_called_with(coord)
