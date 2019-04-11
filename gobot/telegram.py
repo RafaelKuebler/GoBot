@@ -27,7 +27,10 @@ def new_game(bot, update):
     user_id = update.message.from_user.id
     user_name = update.message.from_user.name.replace('\'', '')
 
-    game_handler.new_game(chat_id, user_id, user_name)
+    print(f"[{chat_id}] {user_name}({user_id}): New game")
+
+    game_handler.new_game(chat_id, user_id)
+    game_handler.join(chat_id, user_id, user_name)
 
     send_message(bot, chat_id, settings.new_game_text)
 
@@ -36,6 +39,8 @@ def join(bot, update):
     chat_id = update.message.chat_id
     user_id = update.message.from_user.id
     user_name = update.message.from_user.name.replace('\'', '')
+
+    print(f"[{chat_id}] {user_name}({user_id}): Join game")
 
     game_handler.join(chat_id, user_id, user_name)
 
@@ -49,6 +54,9 @@ def place(bot, update, args):
     chat_id = update.message.chat_id
     user_id = update.message.from_user.id
     coords = args[0]
+
+    print(f"[{chat_id}] {user_id}: Place at {coords}")
+
     try:
         game_handler.place_stone(chat_id, user_id, coords)
         show_board(bot, update)
@@ -61,6 +69,9 @@ def pass_turn(bot, update):
     chat_id = update.message.chat_id
     user_id = update.message.from_user.id
     user_name = update.message.from_user.name.replace('\'', '')
+
+    print(f"[{chat_id}] {user_id}: Pass")
+
     try:
         game_handler.pass_turn(chat_id, user_id)
         if game_handler.both_players_passed(chat_id):
