@@ -1,15 +1,17 @@
+import random
 from gobot.go.go import GoGame
 from gobot.go.goscreenshot import GoScreenshot
-from . import exceptions
+from .exceptions import *
+from . import settings
 
 __author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
 __version__ = "0.1"
 
 
 class Game(GoGame):
-    def __init__(self, chat_id, player, board_x, board_y):
+    def __init__(self, chat_id, board_x, board_y):
         super().__init__(board_x, board_y)
-        self.players = [player]
+        self.players = []
         self.chat_id = chat_id
         self.cur_player = None
         self.player_passed = [False]
@@ -27,30 +29,30 @@ class Game(GoGame):
         else:
             self.cur_player = self.players[0]
 
+
 class GameHandler:
     def __init__(self):
         self.games = {}
         self.players = {}
 
-    def new_game(self, chat_id, player_id, player_name):
+    def new_game(self, chat_id, player_id):
         if chat_id in self.games:
             game = self.games[chat_id]
-            exceptions.check_player_permissions(player_id, game.players)
-            self.players[player_id] = player_name
-        self.games[chat_id] = Game(chat_id, player_id, 9, 9)
+            self.check_player_permissions(player_id, game.players)
+        self.games[chat_id] = Game(chat_id, 9, 9)
 
     def join(self, chat_id, player_id, player_name):
         # TODO: import of detected saved games
         game = self.get_game_with_chat_id(chat_id)
-        exceptions.check_enough_players(game)
+        self.check_player_limit(game)
         self.players[player_id] = player_name
         game.add_player(player_id)
 
     def place_stone(self, chat_id, player, coord):
         game = self.get_game_with_chat_id(chat_id)
-        exceptions.check_all_players_ready(game)
-        exceptions.check_player_permissions(player, game.players)
-        exceptions.check_player_turn(player, game.cur_player)
+        self.check_all_players_ready(game)
+        self.check_player_permissions(player, game.players)
+        self.check_player_turn(player, game.cur_player)
         game.place_stone(coord)
         del game.player_passed[0]
         game.player_passed.append(False)
@@ -58,9 +60,9 @@ class GameHandler:
 
     def pass_turn(self, chat_id, player):
         game = self.get_game_with_chat_id(chat_id)
-        exceptions.check_all_players_ready(game)
-        exceptions.check_player_permissions(player, game.players)
-        exceptions.check_player_turn(player, game.cur_player)
+        self.check_all_players_ready(game)
+        self.check_player_permissions(player, game.players)
+        self.check_player_turn(player, game.cur_player)
         del game.player_passed[0]
         game.player_passed.append(True)
         game.change_turn()
@@ -98,5 +100,32 @@ class GameHandler:
             del self.games[chat_id]
 
     def get_game_with_chat_id(self, chat_id):
-        exceptions.check_chat_id(chat_id, self.games)
+        self.check_chat_id(chat_id, self.games)
         return self.games[chat_id]
+
+    @staticmethod
+    def check_player_turn(player, cur_player):
+        if player != cur_player:
+            proverb = "_{}_".format(random.choice(settings.patience_proverbs))
+            message = "{}\n{}".format(proverb, settings.error_incorrect_turn)
+            raise IncorrectTurnException(message)
+
+    @staticmethod
+    def check_all_players_ready(game):
+        if game is None:
+            raise UnexpectedNumberOfPlayersException(settings.error_not_enough_players)
+
+    @staticmethod
+    def check_player_limit(game):
+        if len(game.players) == 2:
+            raise UnexpectedNumberOfPlayersException(settings.error_already_enough_players)
+
+    @staticmethod
+    def check_player_permissions(player, players):
+        if player not in players:
+            raise NoPermissionsException(settings.error_permissions)
+
+    @staticmethod
+    def check_chat_id(chat_id, games):
+        if chat_id not in games:
+            raise InexistentGameException(settings.error_inexistent_game)

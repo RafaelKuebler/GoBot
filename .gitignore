@@ -6,5 +6,6 @@ __pycache__/
 venv/
 coverage_html_report/
 .coverage
+test/htmlcov/
 
 *.url
