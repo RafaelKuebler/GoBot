@@ -1,6 +1,3 @@
-#!/usr/bin/python
-# coding: utf-8
-
 from . import settings
 
 __author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"

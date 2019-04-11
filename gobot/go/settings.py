@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# coding: utf-8
 
 error_invalid_coords = "This coordinate does not exist on the board!"
 error_coord_occupied = "This coordinate already holds a stone!"

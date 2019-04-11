@@ -1,6 +1,3 @@
-#!/usr/bin/python
-# coding: utf-8
-
 from gobot.go.exceptions import GoGameException
 
 __author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
