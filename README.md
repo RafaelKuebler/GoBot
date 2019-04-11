@@ -12,7 +12,7 @@ popular game *GO* in a Telegram chat with you friends!
 *GoSenseiBot* will accept commands such as "/place a4" and send
 you a visualization of the game board after every move.
 
-<img alt="Start screenshot" src="https://user-images.githubusercontent.com/9216979/49282745-35360200-f490-11e8-8718-fd7966f7330d.jpeg" width="300"> <img alt="Game screenshot" src="https://user-images.githubusercontent.com/9216979/49282878-89d97d00-f490-11e8-86d9-ec2906ee5583.jpg" width="300">
+<img alt="Start screenshot" src="https://user-images.githubusercontent.com/9216979/49282745-35360200-f490-11e8-8718-fd7966f7330d.jpeg" width="300"> <img alt="Game screenshot" src="https://user-images.githubusercontent.com/9216979/49282878-89d97d00-f490-11e8-86d9-ec2906ee5583.jpg" width="298">
 
 To try him out, just type **@GoSenseiBot** into your chat or add it to one of your groups!
 
