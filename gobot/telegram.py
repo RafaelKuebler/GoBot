@@ -15,6 +15,9 @@ game_handler = GameHandler()
 
 def start(bot, update):
     chat_id = update.message.chat_id
+    user_name = update.message.from_user.name.replace('\'', '')
+    logging.info(f"Chat {chat_id}, user {user_name} called /start")
+
     send_message(bot, chat_id, settings.greeting)
     send_message(bot, chat_id, settings.commands)
 
@@ -23,8 +26,7 @@ def new_game(bot, update):
     chat_id = update.message.chat_id
     user_id = update.message.from_user.id
     user_name = update.message.from_user.name.replace('\'', '')
-
-    print(f"[{chat_id}] {user_name}({user_id}): New game")
+    logging.info(f"Chat {chat_id}, user {user_name} called /new")
 
     game_handler.new_game(chat_id, user_id)
     game_handler.join(chat_id, user_id, user_name)
@@ -36,8 +38,7 @@ def join(bot, update):
     chat_id = update.message.chat_id
     user_id = update.message.from_user.id
     user_name = update.message.from_user.name.replace('\'', '')
-
-    print(f"[{chat_id}] {user_name}({user_id}): Join game")
+    logging.info(f"Chat {chat_id}, user {user_name} called /join")
 
     game_handler.join(chat_id, user_id, user_name)
 
@@ -50,9 +51,9 @@ def join(bot, update):
 def place(bot, update, args):
     chat_id = update.message.chat_id
     user_id = update.message.from_user.id
+    user_name = update.message.from_user.name.replace('\'', '')
     coords = args[0]
-
-    print(f"[{chat_id}] {user_id}: Place at {coords}")
+    logging.info(f"Chat {chat_id}, user {user_name} called /place at {coords}")
 
     try:
         game_handler.place_stone(chat_id, user_id, coords)
@@ -66,8 +67,7 @@ def pass_turn(bot, update):
     chat_id = update.message.chat_id
     user_id = update.message.from_user.id
     user_name = update.message.from_user.name.replace('\'', '')
-
-    print(f"[{chat_id}] {user_id}: Pass")
+    logging.info(f"Chat {chat_id}, user {user_name} called /pass")
 
     try:
         game_handler.pass_turn(chat_id, user_id)
@@ -84,6 +84,7 @@ def pass_turn(bot, update):
 
 def show_board(bot, update):
     chat_id = update.message.chat_id
+
     image = game_handler.create_image(chat_id)
     bot.send_photo(chat_id, photo=image)
 
@@ -98,6 +99,8 @@ def show_turn(bot, chat_id):
 
 def display_proverb(bot, update):
     chat_id = update.message.chat_id
+    user_name = update.message.from_user.name.replace('\'', '')
+    logging.info(f"Chat {chat_id}, user {user_name} called /proverb")
 
     proverb = random.choice(settings.go_proverbs)
     message = "\"_{}_\"".format(proverb)
@@ -137,13 +140,16 @@ def start_bot(key):
         CommandHandler('pass', pass_turn),
         CommandHandler(['show_board', 'sh'], show_board),
         CommandHandler(['proverb', 'pr'], display_proverb),
-        MessageHandler(Filters.command, unknown)
     ]
 
+    logging.info("Registering message handlers...")
     for handler in message_handlers:
         dispatcher.add_handler(handler)
+        logging.info(f"Added command {handler.command} handler")
+    dispatcher.add_handler(MessageHandler(Filters.command, unknown))
+    logging.info(f"Added unknown command handler")
 
     atexit.register(save_games)
 
-    print('Polling...')
+    logging.info("Started polling")
     updater.start_polling()
