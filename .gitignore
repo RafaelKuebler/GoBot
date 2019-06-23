@@ -7,5 +7,6 @@ venv/
 coverage_html_report/
 .coverage
 test/htmlcov/
+logs/
 
 *.url

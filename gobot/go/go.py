@@ -1,5 +1,6 @@
 from enum import Enum
-from . import exceptions
+from . import settings
+from .exceptions import *
 
 __author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
 __version__ = "0.1"
@@ -74,7 +75,7 @@ class Stone:
         if not self.group.liberties:
             self.capture()
             self.group.stones.remove(self)
-            exceptions.check_self_capture()
+            raise SelfCaptureException(settings.error_self_capture)
 
     def __repr__(self):
         return "({}: {})".format(self.color, self.coord)
@@ -130,9 +131,9 @@ class GoGame:
         self.board = Board(board_x, board_y)
 
     def place_stone(self, coord):
-        exceptions.check_stone_coords(coord, self.board)
+        self._check_stone_coord(coord)
         x, y = self._transform_coords(coord)
-        exceptions.check_pos_taken(x, y, self.board)
+        self._check_pos_taken(x, y)
         # TODO: Implement Ko rule
         Stone(x, y, self.cur_color, self.board)
 
@@ -141,10 +142,6 @@ class GoGame:
             self.cur_color = Color.WHITE
         else:
             self.cur_color = Color.BLACK
-
-    def mark_stone(self, coord):
-        # TODO: Allow players to mark stones
-        pass
 
     def calculate_result(self):
         # TODO: Calculate the territory of each player
@@ -156,3 +153,16 @@ class GoGame:
         letter = ord(coord[0]) - ord('a')
         number = int(coord[1]) - 1
         return letter, number
+
+    def _check_stone_coord(self, coord):
+        if not coord[1:].isdigit():
+            raise InvalidCoordinateException(settings.error_invalid_coords)
+
+        x_in_range = ord('a') <= ord(coord[0]) < ord('a') + self.board.size_x
+        y_in_range = 1 <= int(coord[1:]) <= self.board.size_y
+        if not x_in_range or not y_in_range:
+            raise InvalidCoordinateException(settings.error_invalid_coords)
+
+    def _check_pos_taken(self, x, y):
+        if self.board.stones[x][y] is not None:
+            raise CoordOccupiedException(settings.error_coord_occupied)
