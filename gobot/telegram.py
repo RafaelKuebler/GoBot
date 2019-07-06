@@ -5,6 +5,7 @@ import atexit
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from . import settings
 from .exceptions import GoGameException
+from .go.exceptions import KoException
 from .gamehandler import GameHandler
 
 __author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
@@ -59,6 +60,10 @@ def place(bot, update, args):
         game_handler.place_stone(chat_id, user_id, coords)
         show_board(bot, update)
         show_turn(bot, chat_id)
+    except KoException as exception:
+        send_message(bot, chat_id, str(exception))
+        ko_proverb = "\"_{}_\"".format(settings.ko_proverb)
+        send_message(bot, chat_id, ko_proverb)
     except GoGameException as exception:
         send_message(bot, chat_id, str(exception))
 

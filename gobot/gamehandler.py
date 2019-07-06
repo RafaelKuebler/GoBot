@@ -1,6 +1,6 @@
 import random
-from gobot.go.go import GoGame
-from gobot.go.goscreenshot import GoScreenshot
+from gobot.go.go import GoGame, Color
+from gobot.go.goscreenshot import GoScreenShot
 from .exceptions import *
 from . import settings
 
@@ -13,8 +13,9 @@ class Game(GoGame):
         super().__init__(board_x, board_y)
         self.player_ids = []
         self.cur_player_id = None
+        self.cur_player_color = Color.BLACK
         self._player_passed = []
-        self.screenshot = GoScreenshot(board_x, board_y)
+        self.screenshot = GoScreenShot(board_x, board_y)
 
     @property
     def both_players_passed(self):
@@ -27,8 +28,8 @@ class Game(GoGame):
         self.cur_player_id = player_id
         self._player_passed.append(False)
 
-    def place_stone(self, coord):
-        super().place_stone(coord)
+    def place_stone(self, coord, color=None):
+        super().place_stone(coord, self.cur_player_color)
         del self._player_passed[0]
         self._player_passed.append(False)
         self._change_turn()
@@ -39,11 +40,15 @@ class Game(GoGame):
         self._change_turn()
 
     def _change_turn(self):
-        super().change_turn()
         if self.cur_player_id == self.player_ids[0]:
             self.cur_player_id = self.player_ids[1]
         else:
             self.cur_player_id = self.player_ids[0]
+
+        if self.cur_player_color == Color.WHITE:
+            self.cur_player_color = Color.BLACK
+        else:
+            self.cur_player_color = Color.WHITE
 
     def take_screenshot(self):
         image = self.screenshot.take_screenshot(self.board)
@@ -96,7 +101,7 @@ class GameHandler:
 
     def cur_player_color(self, chat_id):
         game = self._get_game_with_chat_id(chat_id)
-        return game.cur_color.value
+        return game.cur_player_color.value
 
     def create_image(self, chat_id):
         game = self._get_game_with_chat_id(chat_id)

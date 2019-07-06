@@ -1,6 +1,7 @@
 import pytest
 from gobot.gamehandler import Game, GameHandler
 from gobot.exceptions import *
+from gobot.go.go import Color
 
 __author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
 __version__ = "0.1"
@@ -50,7 +51,7 @@ class TestGame:
         mock_place_stone = mocker.patch('gobot.go.go.GoGame.place_stone')
 
         game.place_stone(coord)
-        mock_place_stone.assert_called_with(coord)
+        mock_place_stone.assert_called_with(coord, Color.BLACK)
         assert game.cur_player_id == self.player1_id
         assert not game.both_players_passed
 
@@ -60,6 +61,7 @@ class TestGame:
 
         assert not game.both_players_passed
         assert game.cur_player_id == self.player1_id
+        assert game.cur_player_color.value == "white"
 
     def test_pass_turn_twice(self, global_vars):
         game = self.setup_game()
@@ -68,10 +70,11 @@ class TestGame:
 
         assert game.both_players_passed
         assert game.cur_player_id == self.player2_id
+        assert game.cur_player_color.value == "black"
 
     def test_take_screenshot(self, mocker, global_vars):
         game = self.setup_game()
-        mock_screenshot = mocker.patch('gobot.go.goscreenshot.GoScreenshot.take_screenshot')
+        mock_screenshot = mocker.patch('gobot.go.goscreenshot.GoScreenShot.take_screenshot')
 
         game.take_screenshot()
         mock_screenshot.assert_called_with(game.board)
@@ -146,6 +149,11 @@ class TestGameHandler:
         self.setup_game(game_handler)
         with pytest.raises(UnexpectedNumberOfPlayersException):
             game_handler.join(self.chat_id, self.player3_id, self.player3_name)
+
+    def test_first_player_black(self, game_handler, global_vars):
+        self.setup_game(game_handler)
+
+        assert game_handler.cur_player_color(self.chat_id) == "black"
 
     def test_place_stone(self, mocker, game_handler, global_vars):
         self.setup_game(game_handler)

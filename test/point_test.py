@@ -1,4 +1,4 @@
-from gobot.utils.point import Point
+from gobot.go.point import Point
 
 __author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
 __version__ = "0.1"

@@ -23,6 +23,11 @@ class SelfCaptureException(GoGameException):
         super(SelfCaptureException, self).__init__(message)
 
 
+class InvalidBoardSizeException(GoGameException):
+    def __init__(self, message):
+        super(InvalidBoardSizeException, self).__init__(message)
+
+
 class KoException(GoGameException):
     def __init__(self, message):
         super(KoException, self).__init__(message)

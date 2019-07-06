@@ -1,6 +1,6 @@
 import pytest
-from gobot.go.go import Stone, Group, Board, GoGame, Color
-from gobot.go.exceptions import SelfCaptureException, InvalidCoordinateException
+from gobot.go.go import *
+from gobot.go.exceptions import *
 
 __author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
 __version__ = "0.1"
@@ -45,15 +45,15 @@ class TestStone:
         assert board.stones[5][6] is None
 
     def test_self_capture(self):
+        board = Board()
+        Stone(5, 5, Color.WHITE, board)
+        Stone(5, 4, Color.BLACK, board)
+        Stone(5, 7, Color.BLACK, board)
+        Stone(4, 5, Color.BLACK, board)
+        Stone(4, 6, Color.BLACK, board)
+        Stone(6, 5, Color.BLACK, board)
+        Stone(6, 6, Color.BLACK, board)
         with pytest.raises(SelfCaptureException):
-            board = Board()
-            Stone(5, 5, Color.WHITE, board)
-            Stone(5, 4, Color.BLACK, board)
-            Stone(5, 7, Color.BLACK, board)
-            Stone(4, 5, Color.BLACK, board)
-            Stone(4, 6, Color.BLACK, board)
-            Stone(6, 5, Color.BLACK, board)
-            Stone(6, 6, Color.BLACK, board)
             Stone(5, 6, Color.WHITE, board)
 
     def test_neighbors(self):
@@ -65,6 +65,35 @@ class TestStone:
         stone = Stone(0, 0, Color.WHITE, Board())
         neighbors = {(1, 0), (0, 1)}
         assert neighbors.issubset(stone.neighbors)
+
+    def test_ko(self):
+        board = Board()
+        Stone(5, 5, Color.WHITE, board)
+        Stone(7, 5, Color.WHITE, board)
+        Stone(6, 4, Color.WHITE, board)
+        Stone(6, 6, Color.WHITE, board)
+        Stone(5, 6, Color.BLACK, board)
+        Stone(5, 4, Color.BLACK, board)
+        Stone(4, 5, Color.BLACK, board)
+        Stone(6, 5, Color.BLACK, board)
+        # created ko situation
+
+        assert board.stones[5][5] is None
+        with pytest.raises(KoException):
+            Stone(5, 5, Color.WHITE, board)
+
+    def test_ko2(self):
+        board = Board()
+        Stone(0, 0, Color.WHITE, board)
+        Stone(2, 0, Color.WHITE, board)
+        Stone(1, 1, Color.WHITE, board)
+        Stone(0, 1, Color.BLACK, board)
+        Stone(1, 0, Color.BLACK, board)
+        # created ko situation
+
+        assert board.stones[0][0] is None
+        with pytest.raises(KoException):
+            Stone(0, 0, Color.WHITE, board)
 
 
 class TestGroup:
@@ -168,10 +197,6 @@ class TestBoard:
 
 
 class TestGoGame:
-    def test_first_player_black(self):
-        game = GoGame()
-        assert game.cur_color == Color.BLACK
-
     def test_board(self):
         game = GoGame()
         assert game.board is not None
@@ -184,19 +209,12 @@ class TestGoGame:
             assert game.board.size_x == x
             assert game.board.size_y == y
 
-    def test_change_turn(self):
-        game = GoGame()
-        game.change_turn()
-        assert game.cur_color == Color.WHITE
-        game.change_turn()
-        assert game.cur_color == Color.BLACK
-
     def test_place_stone(self):
         game = GoGame()
         coords = ['a1', 'e2', 'e5']
         expected = [(0, 0), (4, 1), (4, 4)]
         for i in range(len(coords)):
-            game.place_stone(coords[i])
+            game.place_stone(coords[i], Color.BLACK)
             x, y = expected[i]
             assert game.board.stones[x][y] is not None
 
@@ -205,11 +223,7 @@ class TestGoGame:
         coords = ['x9', 'y22', 'o2']
         for i in range(len(coords)):
             with pytest.raises(InvalidCoordinateException):
-                game.place_stone(coords[i])
-
-    @pytest.mark.skip(reason="not implemented yet")
-    def test_ko(self):
-        pass
+                game.place_stone(coords[i], Color.BLACK)
 
     @pytest.mark.skip(reason="not implemented yet")
     def test_calculate_result(self):
