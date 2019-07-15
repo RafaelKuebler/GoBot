@@ -3,7 +3,6 @@ import logging
 import sys
 import datetime
 import os
-from key import token
 
 __author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
 __version__ = "0.1"
@@ -19,4 +18,7 @@ logging.basicConfig(filename=f'logs/{log_filename}.log',
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
 logging.info("Starting telegram bot...")
-gobot.start_bot(token)
+if "TOKEN" not in os.environ:
+    print('Error: Please supply the bot token! set TOKEN="..."')
+    exit(1)
+gobot.start_bot(os.environ.get("TOKEN"))
