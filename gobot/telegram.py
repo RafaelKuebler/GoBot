@@ -1,3 +1,5 @@
+import os
+import sys
 import logging
 import telegram
 import random
@@ -156,5 +158,17 @@ def start_bot(key):
 
     atexit.register(save_games)
 
-    logging.info("Started polling")
-    updater.start_polling()
+    if 'MODE' not in os.environ:
+        logging.error("No MODE specified!")
+        sys.exit(1)
+    elif os.environ.get('MODE') == 'DEBUG':
+        logging.info("Started polling")
+        updater.start_polling()
+    elif os.environ.get('MODE') == 'RELEASE':
+        port = int(os.environ.get('PORT', '8443'))
+        app_name = os.environ.get('HEROKU_APP_NAME')
+
+        updater.start_webhook(listen='0.0.0.0',
+                              port=port,
+                              url_path=key)
+        updater.bot.set_webhook(f'https://{app_name}.herokuapp.com/{key}')

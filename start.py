@@ -18,7 +18,9 @@ logging.basicConfig(filename=f'logs/{log_filename}.log',
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
 logging.info("Starting telegram bot...")
+
 if "TOKEN" not in os.environ:
-    print('Error: Please supply the bot token! set TOKEN="..."')
+    logging.error("No TOKEN specified!")
     exit(1)
-gobot.start_bot(os.environ.get("TOKEN"))
+
+gobot.start_bot(os.environ.get('TOKEN'))
