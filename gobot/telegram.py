@@ -16,7 +16,8 @@ __version__ = "0.1"
 game_handler = GameHandler()
 
 
-def start(bot, update):
+def start(bot, update) -> None:
+    # TODO: parameter types
     chat_id = update.message.chat_id
     user_name = update.message.from_user.name.replace('\'', '')
     logging.info(f"Chat {chat_id}, user {user_name} called /start")
@@ -25,7 +26,8 @@ def start(bot, update):
     send_message(bot, chat_id, settings.commands)
 
 
-def new_game(bot, update):
+def new_game(bot, update) -> None:
+    # TODO: parameter types
     chat_id = update.message.chat_id
     user_id = update.message.from_user.id
     user_name = update.message.from_user.name.replace('\'', '')
@@ -37,7 +39,8 @@ def new_game(bot, update):
     send_message(bot, chat_id, settings.new_game_text)
 
 
-def join(bot, update):
+def join(bot, update) -> None:
+    # TODO: parameter types
     chat_id = update.message.chat_id
     user_id = update.message.from_user.id
     user_name = update.message.from_user.name.replace('\'', '')
@@ -45,13 +48,14 @@ def join(bot, update):
 
     game_handler.join(chat_id, user_id, user_name)
 
-    message = "*{}*".format(settings.start_game_text)
+    message = f"*{settings.start_game_text}*"
     send_message(bot, chat_id, message)
     show_board(bot, update)
     show_turn(bot, chat_id)
 
 
-def place(bot, update, args):
+def place(bot, update, args) -> None:
+    # TODO: parameter types
     chat_id = update.message.chat_id
     user_id = update.message.from_user.id
     user_name = update.message.from_user.name.replace('\'', '')
@@ -64,13 +68,14 @@ def place(bot, update, args):
         show_turn(bot, chat_id)
     except KoException as exception:
         send_message(bot, chat_id, str(exception))
-        ko_proverb = "\"_{}_\"".format(settings.ko_proverb)
+        ko_proverb = f"\"_{settings.ko_proverb}_\""
         send_message(bot, chat_id, ko_proverb)
     except GoGameException as exception:
         send_message(bot, chat_id, str(exception))
 
 
-def pass_turn(bot, update):
+def pass_turn(bot, update) -> None:
+    # TODO: parameter types
     chat_id = update.message.chat_id
     user_id = update.message.from_user.id
     user_name = update.message.from_user.name.replace('\'', '')
@@ -89,14 +94,16 @@ def pass_turn(bot, update):
         send_message(bot, chat_id, str(exception))
 
 
-def show_board(bot, update):
+def show_board(bot, update) -> None:
+    # TODO: parameter types
     chat_id = update.message.chat_id
 
     image = game_handler.create_image(chat_id)
     bot.send_photo(chat_id, photo=image)
 
 
-def show_turn(bot, chat_id):
+def show_turn(bot, chat_id) -> None:
+    # TODO: parameter types
     cur_player_name = game_handler.cur_player_name(chat_id)
     cur_color = game_handler.cur_player_color(chat_id)
 
@@ -104,36 +111,39 @@ def show_turn(bot, chat_id):
     send_message(bot, chat_id, message)
 
 
-def display_proverb(bot, update):
+def display_proverb(bot, update) -> None:
+    # TODO: parameter types
     chat_id = update.message.chat_id
     user_name = update.message.from_user.name.replace('\'', '')
     logging.info(f"Chat {chat_id}, user {user_name} called /proverb")
 
     proverb = random.choice(settings.go_proverbs)
-    message = "\"_{}_\"".format(proverb)
+    message = f"\"_{proverb}_\""
     send_message(bot, chat_id, message)
 
 
-def unknown(bot, update):
+def unknown(bot, update) -> None:
+    # TODO: parameter types
     chat_id = update.message.chat_id
     send_message(bot, chat_id, settings.unknown_command_text)
 
 
-def send_message(bot, chat_id, text):
+def send_message(bot, chat_id, text) -> None:
+    # TODO: parameter types
     bot.send_message(chat_id=chat_id, text=text, parse_mode=telegram.ParseMode.MARKDOWN)
 
 
-def save_games():
+def save_games() -> None:
     game_handler.save_games()
 
 
-def game_over(bot, chat_id):
+def game_over(bot, chat_id) -> None:
     # score = game_handler.calculate_result(chat_id)
     game_handler.remove_game(chat_id)
     send_message(bot, chat_id, settings.game_over_text)
 
 
-def start_bot(key):
+def start_bot(key: str) -> None:
     logging.basicConfig(format=settings.logger_format, level=logging.INFO)
 
     updater = Updater(token=key)
@@ -145,7 +155,7 @@ def start_bot(key):
         CommandHandler(['join', 'j'], join),
         CommandHandler(['place', 'p'], place, pass_args=True),
         CommandHandler('pass', pass_turn),
-        CommandHandler(['show_board', 'sh'], show_board),
+        CommandHandler(['show', 'sh'], show_board),
         CommandHandler(['proverb', 'pr'], display_proverb),
     ]
 

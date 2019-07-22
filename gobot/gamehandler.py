@@ -1,5 +1,5 @@
 import random
-from gobot.go.go import GoGame, Color
+from gobot.go.go import GoGame
 from gobot.go.goscreenshot import GoScreenShot
 from .exceptions import *
 from . import settings
@@ -13,7 +13,7 @@ class Game(GoGame):
         super().__init__(board_x, board_y)
         self.player_ids = []
         self.cur_player_id = None
-        self.cur_player_color = Color.BLACK
+        self.cur_player_color = 'black'
         self._player_passed = []
         self.screenshot = GoScreenShot(board_x, board_y)
 
@@ -45,13 +45,13 @@ class Game(GoGame):
         else:
             self.cur_player_id = self.player_ids[0]
 
-        if self.cur_player_color == Color.WHITE:
-            self.cur_player_color = Color.BLACK
+        if self.cur_player_color == "white":
+            self.cur_player_color = "black"
         else:
-            self.cur_player_color = Color.WHITE
+            self.cur_player_color = "white"
 
     def take_screenshot(self):
-        image = self.screenshot.take_screenshot(self.board)
+        image = self.screenshot.take_screenshot(self.board, self.last_stone_placed)
         return image
 
 

@@ -1,84 +1,139 @@
-from enum import Enum
+from typing import List, Dict, Set, Tuple, Optional
+
 from . import settings
 from .exceptions import *
 
 __author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
 __version__ = "0.1"
 
+REVERSE: Dict[str, str] = {
+    "white": "black",
+    "black": "white"
+}
 
-class Color(Enum):
-    WHITE = "white"
-    BLACK = "black"
 
-
-class Stone:
-    def __init__(self, x, y, color, board):
-        self.coord = (x, y)
-        self.color = color
-        self.board = board
-
-        self.group = Group(self.color)
-        self.group.stones.add(self)
-        self._check_ko()
-        self.merge_group()
-
-        self.capture_neighbors()
-        self.board.stones[x][y] = self
-        self._check_self_capture()
-        self.board.last_stone_placed = self
+class GridPosition:
+    def __init__(self) -> None:
+        self.group: Set[Tuple[int, int]] = set()
+        self.color: Optional[str] = None
 
     @property
-    def neighbors(self):
-        x, y = self.coord
-        neighbors = []
+    def free(self) -> None:
+        return self.color is None
+
+    def clear(self) -> None:
+        self.group = set()
+        self.color = None
+
+
+class GoGame:
+    def __init__(self, size_x: int = 9, size_y: int = 9) -> None:
+        self._check_board_size(size_x, size_y)
+        self.size_x: int = size_x
+        self.size_y: int = size_y
+        self._create_board()
+        self.last_stone_placed: Optional[Tuple[int, int]] = None
+        self._last_captured_single_stone: Optional[Tuple[int, int]] = None
+
+    def _create_board(self) -> None:
+        self.board: List[List[GridPosition]] = []
+        for x in range(self.size_x):
+            column: List[GridPosition] = []
+            for y in range(self.size_y):
+                column.append(GridPosition())
+            self.board.append(column)
+
+    def place_stone(self, coord: str, color: str) -> None:
+        self._check_stone_coord(coord)
+        x, y = self._transform_coord(coord)
+        self._check_pos_taken(x, y)
+
+        adjacent_groups = self._detect_adjacent_groups(x, y, color)
+        own_group = {item for groups in adjacent_groups
+                     for item in groups}  # flatten
+        own_group.add((x, y))
+        adjacent_opponent_groups = self._detect_adjacent_groups(x, y, REVERSE[color])
+        opponent_groups_atari = [group for group in adjacent_opponent_groups
+                                 if len(self._group_liberties(group)) == 1]
+
+        self._check_ko(opponent_groups_atari)
+        self._check_self_capture((x, y), own_group, opponent_groups_atari)
+
+        self._capture_neighbors(opponent_groups_atari)
+        self._merge_groups(own_group, color)
+        self.last_stone_placed = (x, y)
+
+    def _capture_neighbors(self, opponent_groups: List[Set[Tuple[int, int]]]) -> None:
+        if len(opponent_groups) == 1 and len(opponent_groups[0]) == 1:
+            self._last_captured_single_stone = list(opponent_groups[0])[0]
+
+        for group in opponent_groups:
+            for x, y in group.copy():
+                self.board[x][y].group.remove((x, y))
+                self.board[x][y].clear()
+
+    def _merge_groups(self, new_group: Set[Tuple[int, int]], color: str) -> None:
+        for x, y in new_group:
+            self.board[x][y].group = new_group
+            self.board[x][y].color = color
+
+    def _group_liberties(self, group: Set[Tuple[int, int]])\
+            -> Set[Tuple[int, int]]:
+        group_liberties: Set[Tuple[int, int]] = set()
+        for stone in group:
+            stone_liberties = {(x, y) for x, y in self._neighbors_of(*stone)
+                               if self.board[x][y].free}
+            group_liberties = group_liberties.union(stone_liberties)
+        return group_liberties
+
+    def _detect_adjacent_groups(self, x: int, y: int, color: str)\
+            -> List[Set[Tuple[int, int]]]:
+        return [self.board[x][y].group
+                for x, y in self._neighbors_of(x, y, color)]
+
+    def _neighbors_of(self, x: int, y: int, color: Optional[str] = None)\
+            -> List[Tuple[int, int]]:
+        neighbors: List[Tuple[int, int]] = []
         if x > 0:
             neighbors.append((x - 1, y))
-        if x < self.board.size_x - 1:
+        if x < self.size_x - 1:
             neighbors.append((x + 1, y))
         if y > 0:
             neighbors.append((x, y - 1))
-        if y < self.board.size_y - 1:
+        if y < self.size_y - 1:
             neighbors.append((x, y + 1))
+
+        if color is not None:
+            neighbors = [(x, y) for x, y in neighbors
+                         if self.board[x][y].color == color]
         return neighbors
 
-    @property
-    def liberties(self):
-        liberties = []
-        for x, y in self.neighbors:
-            if self.board.stones[x][y] is None:
-                liberties.append((x, y))
-        return liberties
+    @staticmethod
+    def _transform_coord(coord: str) -> Tuple[int, int]:
+        # TODO: implement notation as in https://senseis.xmp.net/?Coordinates
+        letter = ord(coord[0]) - ord('a')
+        number = int(coord[1]) - 1
+        return letter, number
 
-    @property
-    def adjacent_groups(self):
-        adjacent_groups = set()
-        for x, y in self.neighbors:
-            if self.board.stones[x][y] is not None:
-                adjacent_groups.add(self.board.stones[x][y].group)
-        return adjacent_groups
+    @staticmethod
+    def _check_board_size(size_x: int, size_y: int) -> None:
+        if (size_x, size_y) not in [(9, 9), (13, 13), (19, 19)]:
+            raise InvalidBoardSizeException(settings.error_invalid_size)
 
-    def capture_neighbors(self):
-        stones = []
-        for group in self.adjacent_groups:
-            if group.color != self.color and len(group.liberties)-1 == 0:
-                group.capture()
-                stones.append(list(group.stones))
+    def _check_stone_coord(self, coord) -> None:
+        if not coord[1:].isdigit():
+            raise InvalidCoordinateException(settings.error_invalid_coords)
 
-        if len(stones) == 1 and len(stones[0]) == 1:
-            self.board.last_captured_single_stone = stones[0][0]
-        else:
-            self.board.last_captured_single_stone = None
+        x_in_range: bool = ord('a') <= ord(coord[0]) < (ord('a') + self.size_x)
+        y_in_range: bool = 1 <= int(coord[1:]) <= self.size_y
+        if not x_in_range or not y_in_range:
+            raise InvalidCoordinateException(settings.error_invalid_coords)
 
-    def capture(self):
-        x, y = self.coord
-        self.board.stones[x][y] = None
+    def _check_pos_taken(self, x: int, y: int) -> None:
+        if not self.board[x][y].free:
+            raise CoordOccupiedException(settings.error_coord_occupied)
 
-    def merge_group(self):
-        for adj_group in self.adjacent_groups:
-            if adj_group.color == self.color:
-                self.group.merge(adj_group)
-
-    def _check_ko(self):
+    def _check_ko(self, opponent_groups: List[Set[Tuple[int, int]]]) -> None:
         """
         Conditions:
         - Last round exactly one stone was captured
@@ -86,115 +141,30 @@ class Stone:
         - The stone that would be captured is the last placed stone
         """
 
-        if self.board.last_captured_single_stone is None:
+        if self._last_captured_single_stone is None:
             return
 
-        single_threatened_neighbor = None
-
-        for group in self.adjacent_groups:
-            if group.color != self.color and len(group.liberties)-1 == 0 and group.size == 1:
+        single_threatened_neighbor: Optional[Tuple[int, int]] = None
+        for group in opponent_groups:
+            group_liberties = len(self._group_liberties(group))
+            if group_liberties == 1 and len(group) == 1:
                 more_than_one_target = single_threatened_neighbor is not None
                 if more_than_one_target:
                     return
-                single_threatened_neighbor = list(group.stones)[0]
+                single_threatened_neighbor = list(group)[0]
 
-        if self.board.last_stone_placed == single_threatened_neighbor:
+        if self.last_stone_placed == single_threatened_neighbor:
             raise KoException(settings.error_ko)
 
-    def _check_self_capture(self):
-        if not self.group.liberties:
-            self.capture()
-            self.group.stones.remove(self)
+    def _check_self_capture(self, stone: Tuple[int, int],
+                            group: Set[Tuple[int, int]],
+                            opponent_groups: List[Set[Tuple[int, int]]])\
+            -> None:
+        if opponent_groups:
+            return
+
+        group_liberties = self._group_liberties(group)
+        if stone in group_liberties:
+            group_liberties.remove(stone)
+        if not group_liberties:
             raise SelfCaptureException(settings.error_self_capture)
-
-    def __repr__(self):
-        return "({}: {})".format(self.color, self.coord)
-
-
-class Group:
-    def __init__(self, color):
-        self.stones = set()
-        self.color = color
-
-    @property
-    def liberties(self):
-        liberties = []
-        for stone in self.stones:
-            liberties.extend(stone.liberties)
-        return set(liberties)
-
-    @property
-    def size(self):
-        return len(self.stones)
-
-    def merge(self, group):
-        for stone in group.stones:
-            stone.group = self
-            self.stones.add(stone)
-
-    def capture(self):
-        for stone in self.stones:
-            stone.capture()
-
-    def __repr__(self):
-        return "({}: {})".format(self.color, self.stones)
-
-
-class Board:
-    def __init__(self, size_x=9, size_y=9):
-        self.size_x = size_x
-        self.size_y = size_y
-        self.stones = self._init_stones(self.size_x, self.size_y)
-        self.last_stone_placed = None
-        self.last_captured_single_stone = None
-
-    @staticmethod
-    def _init_stones(size_x, size_y):
-        stones = []
-        for _ in range(size_x):
-            inner_stones = []
-            for _ in range(size_y):
-                inner_stones.append(None)
-            stones.append(inner_stones)
-        return stones
-
-
-class GoGame:
-    def __init__(self, board_x=9, board_y=9):
-        self._check_board_size(board_x, board_y)
-        self.board = Board(board_x, board_y)
-
-    def place_stone(self, coord, color):
-        self._check_stone_coord(coord)
-        x, y = self._transform_coord(coord)
-        self._check_pos_taken(x, y)
-        Stone(x, y, color, self.board)
-
-    def calculate_result(self):
-        # TODO: Calculate the territory of each player
-        raise NotImplementedError
-
-    @staticmethod
-    def _transform_coord(coord):
-        # TODO: implement notation as in https://senseis.xmp.net/?Coordinates
-        letter = ord(coord[0]) - ord('a')
-        number = int(coord[1]) - 1
-        return letter, number
-
-    @staticmethod
-    def _check_board_size(size_x, size_y):
-        if (size_x, size_y) not in [(9, 9), (13, 13), (19, 19)]:
-            raise InvalidBoardSizeException(settings.error_invalid_size)
-
-    def _check_stone_coord(self, coord):
-        if not coord[1:].isdigit():
-            raise InvalidCoordinateException(settings.error_invalid_coords)
-
-        x_in_range = ord('a') <= ord(coord[0]) < ord('a') + self.board.size_x
-        y_in_range = 1 <= int(coord[1:]) <= self.board.size_y
-        if not x_in_range or not y_in_range:
-            raise InvalidCoordinateException(settings.error_invalid_coords)
-
-    def _check_pos_taken(self, x, y):
-        if self.board.stones[x][y] is not None:
-            raise CoordOccupiedException(settings.error_coord_occupied)
