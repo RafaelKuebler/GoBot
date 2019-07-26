@@ -18,7 +18,7 @@ class GridPosition:
         self.color: Optional[str] = None
 
     @property
-    def free(self) -> None:
+    def free(self) -> bool:
         return self.color is None
 
     def clear(self) -> None:
@@ -28,15 +28,16 @@ class GridPosition:
 
 class GoGame:
     def __init__(self, size_x: int = 9, size_y: int = 9) -> None:
-        self._check_board_size(size_x, size_y)
         self.size_x: int = size_x
         self.size_y: int = size_y
-        self._create_board()
+        self.board: List[List[GridPosition]] = []
         self.last_stone_placed: Optional[Tuple[int, int]] = None
+
+        self._check_board_size(size_x, size_y)
+        self._create_board()
         self._last_captured_single_stone: Optional[Tuple[int, int]] = None
 
     def _create_board(self) -> None:
-        self.board: List[List[GridPosition]] = []
         for x in range(self.size_x):
             column: List[GridPosition] = []
             for y in range(self.size_y):
@@ -69,8 +70,8 @@ class GoGame:
 
         for group in opponent_groups:
             for x, y in group.copy():
-                self.board[x][y].group.remove((x, y))
-                self.board[x][y].clear()
+                self.board[x][y].group.remove((x, y))  # remove stone from the group
+                self.board[x][y].clear()  # clear board position
 
     def _merge_groups(self, new_group: Set[Tuple[int, int]], color: str) -> None:
         for x, y in new_group:

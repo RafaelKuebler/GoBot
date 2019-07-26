@@ -6,225 +6,123 @@ __author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
 __version__ = "0.1"
 
 
-class TestStone:
-    def test_color(self):
-        colors = [Color.BLACK, Color.WHITE]
-        for color in colors:
-            stone = Stone(5, 5, color, Board())
-            assert stone.color == color
+class TestGridPosition:
+    def test_free(self):
+        grid_pos = GridPosition()
+        assert grid_pos.free
 
-    def test_coords(self):
-        stone = Stone(5, 5, Color.BLACK, Board())
-        assert stone.coord == (5, 5)
-
-    def test_stone_on_board(self):
-        board = Board()
-        stone = Stone(5, 5, Color.WHITE, board)
-        assert board.stones[5][5] == stone
-
-    def test_capture_single(self):
-        board = Board()
-        Stone(5, 5, Color.WHITE, board)
-        Stone(5, 4, Color.BLACK, board)
-        Stone(5, 6, Color.BLACK, board)
-        Stone(4, 5, Color.BLACK, board)
-        Stone(6, 5, Color.BLACK, board)
-        assert board.stones[5][5] is None
-
-    def test_capture_group(self):
-        board = Board()
-        Stone(5, 5, Color.WHITE, board)
-        Stone(5, 6, Color.WHITE, board)
-        Stone(5, 4, Color.BLACK, board)
-        Stone(5, 7, Color.BLACK, board)
-        Stone(4, 5, Color.BLACK, board)
-        Stone(4, 6, Color.BLACK, board)
-        Stone(6, 5, Color.BLACK, board)
-        Stone(6, 6, Color.BLACK, board)
-        assert board.stones[5][5] is None
-        assert board.stones[5][6] is None
-
-    def test_self_capture(self):
-        board = Board()
-        Stone(5, 5, Color.WHITE, board)
-        Stone(5, 4, Color.BLACK, board)
-        Stone(5, 7, Color.BLACK, board)
-        Stone(4, 5, Color.BLACK, board)
-        Stone(4, 6, Color.BLACK, board)
-        Stone(6, 5, Color.BLACK, board)
-        Stone(6, 6, Color.BLACK, board)
-        with pytest.raises(SelfCaptureException):
-            Stone(5, 6, Color.WHITE, board)
-
-    def test_neighbors(self):
-        stone = Stone(5, 5, Color.WHITE, Board())
-        neighbors = {(4, 5), (6, 5), (5, 4), (5, 6)}
-        assert neighbors.issubset(stone.neighbors)
-
-    def test_neighbors_border(self):
-        stone = Stone(0, 0, Color.WHITE, Board())
-        neighbors = {(1, 0), (0, 1)}
-        assert neighbors.issubset(stone.neighbors)
-
-    def test_ko(self):
-        board = Board()
-        Stone(5, 5, Color.WHITE, board)
-        Stone(7, 5, Color.WHITE, board)
-        Stone(6, 4, Color.WHITE, board)
-        Stone(6, 6, Color.WHITE, board)
-        Stone(5, 6, Color.BLACK, board)
-        Stone(5, 4, Color.BLACK, board)
-        Stone(4, 5, Color.BLACK, board)
-        Stone(6, 5, Color.BLACK, board)
-        # created ko situation
-
-        assert board.stones[5][5] is None
-        with pytest.raises(KoException):
-            Stone(5, 5, Color.WHITE, board)
-
-    def test_ko2(self):
-        board = Board()
-        Stone(0, 0, Color.WHITE, board)
-        Stone(2, 0, Color.WHITE, board)
-        Stone(1, 1, Color.WHITE, board)
-        Stone(0, 1, Color.BLACK, board)
-        Stone(1, 0, Color.BLACK, board)
-        # created ko situation
-
-        assert board.stones[0][0] is None
-        with pytest.raises(KoException):
-            Stone(0, 0, Color.WHITE, board)
-
-
-class TestGroup:
-    def test_color(self):
-        colors = [Color.WHITE, Color.BLACK]
-        for color in colors:
-            group = Group(color)
-            assert group.color == color
-
-    def test_stones(self):
-        colors = [Color.WHITE, Color.BLACK]
-        for color in colors:
-            group = Group(color)
-            assert not group.stones
-
-    def test_add_to_group(self):
-        board = Board()
-        stone1 = Stone(5, 5, Color.WHITE, board)
-        stone2 = Stone(5, 6, Color.WHITE, board)
-        assert stone1.group == stone2.group
-
-    def test_combine_groups(self):
-        board = Board()
-        color = Color.WHITE
-        stone1 = Stone(5, 5, color, board)
-        stone2 = Stone(5, 7, color, board)
-        stone3 = Stone(5, 6, color, board)
-        assert stone1.group == stone2.group == stone3.group
-
-    def test_capture(self):
-        board = Board()
-        color = Color.WHITE
-        stone1 = Stone(5, 5, color, board)
-        Stone(5, 6, color, board)
-        Stone(6, 5, color, board)
-        stone1.group.capture()
-        assert board.stones[5][5] is None
-        assert board.stones[5][6] is None
-        assert board.stones[6][5] is None
-
-    def test_liberties_single_stone(self):
-        board = Board()
-        color = Color.WHITE
-        stone = Stone(5, 5, color, board)
-        liberties = {(4, 5), (6, 5), (5, 4), (5, 6)}
-        group_liberties = stone.group.liberties
-        assert liberties.issubset(group_liberties)
-
-    def test_liberties_more_than_1_stones(self):
-        board = Board()
-        color = Color.WHITE
-        stone = Stone(5, 5, color, board)
-        Stone(5, 6, color, board)
-        Stone(6, 5, color, board)
-        liberties = {(5, 4), (6, 4), (7, 5), (6, 6), (5, 7), (4, 6), (4, 5)}
-        group_liberties = stone.group.liberties
-        assert liberties.issubset(group_liberties)
-
-    def test_capture_border(self):
-        board = Board()
-        Stone(5, 0, Color.WHITE, board)
-        Stone(4, 0, Color.BLACK, board)
-        Stone(6, 0, Color.BLACK, board)
-        Stone(5, 1, Color.BLACK, board)
-        assert board.stones[5][0] is None
-
-    def test_capture_corner(self):
-        board = Board()
-        Stone(0, 0, Color.WHITE, board)
-        Stone(1, 0, Color.BLACK, board)
-        Stone(0, 1, Color.BLACK, board)
-        assert board.stones[0][0] is None
-
-
-class TestBoard:
-    def test_sizes(self):
-        sizes = [(9, 9), (13, 13), (19, 19)]
-        for size in sizes:
-            x, y = size
-            board = Board(x, y)
-            assert board.size_x == x
-            assert board.size_y == y
-
-            assert len(board.stones) == x
-            for row in board.stones:
-                assert len(row) == y
-
-    def test_stones_empty(self):
-        sizes = [(9, 9), (13, 13), (19, 19)]
-        for size in sizes:
-            x, y = size
-            board = Board(x, y)
-
-            for i in range(x):
-                for j in range(y):
-                    assert board.stones[i][j] is None
-
-    def test_last_stone_placed(self):
-        board = Board()
-        assert board.last_stone_placed is None
+    def test_occupied(self):
+        grid_pos = GridPosition()
+        grid_pos.color = "white"
+        assert not grid_pos.free
 
 
 class TestGoGame:
-    def test_board(self):
-        game = GoGame()
-        assert game.board is not None
+    @staticmethod
+    def coord(x: int, y: int) -> str:
+        return f"{chr(ord('a') + x)}{y + 1}"
 
-    def test_board_sizes(self):
+    def test_new_game(self):
         sizes = [(9, 9), (13, 13), (19, 19)]
         for size in sizes:
             x, y = size
             game = GoGame(x, y)
-            assert game.board.size_x == x
-            assert game.board.size_y == y
+            assert game.size_x == x
+            assert game.size_y == y
+            assert game.last_stone_placed is None
+            for row in game.board:
+                for grid_pos in row:
+                    assert grid_pos.free
+
+    def test_wrong_size(self):
+        with pytest.raises(InvalidBoardSizeException):
+            GoGame(15, 2)
 
     def test_place_stone(self):
-        game = GoGame()
-        coords = ['a1', 'e2', 'e5']
-        expected = [(0, 0), (4, 1), (4, 4)]
-        for i in range(len(coords)):
-            game.place_stone(coords[i], Color.BLACK)
-            x, y = expected[i]
-            assert game.board.stones[x][y] is not None
-
-    def test_place_stone_invalid(self):
         game = GoGame(9, 9)
-        coords = ['x9', 'y22', 'o2']
-        for i in range(len(coords)):
-            with pytest.raises(InvalidCoordinateException):
-                game.place_stone(coords[i], Color.BLACK)
+        coords = [(0, 0), (4, 1), (4, 4)]
+        for x, y in coords:
+            game.place_stone(self.coord(x, y), "black")
+            assert not game.board[x][y].free
+            assert (x, y) in game.board[x][y].group
+            assert len(game.board[x][y].group) == 1
+            assert game.board[x][y].color == "black"
 
-    @pytest.mark.skip(reason="not implemented yet")
-    def test_calculate_result(self):
-        pass
+    def test_place_stone_invalid_coord(self):
+        game = GoGame(9, 9)
+        coords = ['x9', 'y22', 'o2', 'a30', 'test']
+        for coord in coords:
+            with pytest.raises(InvalidCoordinateException):
+                game.place_stone(coord, "black")
+
+    def test_place_stone_taken_coord(self):
+        game = GoGame(9, 9)
+        game.place_stone(self.coord(3, 3), "white")
+        with pytest.raises(CoordOccupiedException):
+            game.place_stone(self.coord(3, 3), "black")
+
+    def test_capture_single(self):
+        game = GoGame(9, 9)
+        game.place_stone(self.coord(5, 5), "white")
+        game.place_stone(self.coord(5, 4), "black")
+        game.place_stone(self.coord(5, 6), "black")
+        game.place_stone(self.coord(4, 5), "black")
+        game.place_stone(self.coord(6, 5), "black")
+        assert game.board[5][5].free
+
+    def test_capture_group(self) -> None:
+        game = GoGame(9, 9)
+        game.place_stone(self.coord(5, 5), "white")
+        game.place_stone(self.coord(5, 6), "white")
+        game.place_stone(self.coord(5, 4), "black")
+        game.place_stone(self.coord(5, 7), "black")
+        game.place_stone(self.coord(4, 5), "black")
+        game.place_stone(self.coord(4, 6), "black")
+        game.place_stone(self.coord(6, 5), "black")
+        game.place_stone(self.coord(6, 6), "black")
+        assert game.board[5][5].free
+        assert game.board[5][6].free
+
+    def test_self_capture(self) -> None:
+        game = GoGame(9, 9)
+        game.place_stone(self.coord(5, 5), "white")
+        game.place_stone(self.coord(5, 4), "black")
+        game.place_stone(self.coord(5, 7), "black")
+        game.place_stone(self.coord(4, 5), "black")
+        game.place_stone(self.coord(4, 6), "black")
+        game.place_stone(self.coord(6, 5), "black")
+        game.place_stone(self.coord(6, 6), "black")
+        with pytest.raises(SelfCaptureException):
+            game.place_stone(self.coord(5, 6), "white")
+
+    def test_ko(self):
+        game = GoGame(9, 9)
+        game.place_stone(self.coord(5, 5), "white")
+        game.place_stone(self.coord(7, 5), "white")
+        game.place_stone(self.coord(6, 4), "white")
+        game.place_stone(self.coord(6, 6), "white")
+        game.place_stone(self.coord(5, 6), "black")
+        game.place_stone(self.coord(5, 4), "black")
+        game.place_stone(self.coord(4, 5), "black")
+        game.place_stone(self.coord(6, 5), "black")
+        assert game.board[5][5].free
+
+        with pytest.raises(KoException):
+            game.place_stone(self.coord(5, 5), "white")
+
+    def test_ko2(self):
+        game = GoGame(9, 9)
+        game.place_stone(self.coord(0, 0), "white")
+        game.place_stone(self.coord(2, 0), "white")
+        game.place_stone(self.coord(1, 1), "white")
+        game.place_stone(self.coord(0, 1), "black")
+        game.place_stone(self.coord(1, 0), "black")
+        assert game.board[0][0].free
+
+        with pytest.raises(KoException):
+            game.place_stone(self.coord(0, 0), "white")
+
+    # TODO: test merge group
+    # TODO: test group all same color after merge
+    # TODO: test last stone placed
+    # TODO: test not-ko (not single stone, different structure in general)

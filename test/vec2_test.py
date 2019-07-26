@@ -1,10 +1,10 @@
-from gobot.go.point import Vec2
+from gobot.go.vec2 import Vec2
 
 __author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
 __version__ = "0.1"
 
 
-class TestPoint:
+class TestVec2:
     def test_point(self):
         point = Vec2(1, 2)
         assert point.x == 1
