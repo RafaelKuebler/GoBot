@@ -1,7 +1,6 @@
 import pytest
 from gobot.gamehandler import Game, GameHandler
 from gobot.exceptions import *
-from gobot.go.go import Color
 
 __author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
 __version__ = "0.1"
@@ -51,7 +50,7 @@ class TestGame:
         mock_place_stone = mocker.patch('gobot.go.go.GoGame.place_stone')
 
         game.place_stone(coord)
-        mock_place_stone.assert_called_with(coord, Color.BLACK)
+        mock_place_stone.assert_called_with(coord, "black")
         assert game.cur_player_id == self.player1_id
         assert not game.both_players_passed
 
@@ -61,7 +60,7 @@ class TestGame:
 
         assert not game.both_players_passed
         assert game.cur_player_id == self.player1_id
-        assert game.cur_player_color.value == "white"
+        assert game.cur_player_color == "white"
 
     def test_pass_turn_twice(self, global_vars):
         game = self.setup_game()
@@ -70,14 +69,14 @@ class TestGame:
 
         assert game.both_players_passed
         assert game.cur_player_id == self.player2_id
-        assert game.cur_player_color.value == "black"
+        assert game.cur_player_color == "black"
 
     def test_take_screenshot(self, mocker, global_vars):
         game = self.setup_game()
         mock_screenshot = mocker.patch('gobot.go.goscreenshot.GoScreenShot.take_screenshot')
 
         game.take_screenshot()
-        mock_screenshot.assert_called_with(game.board)
+        mock_screenshot.assert_called_with(game.board, None)
 
 
 class TestGameHandler:

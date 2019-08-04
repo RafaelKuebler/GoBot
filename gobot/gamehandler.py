@@ -13,7 +13,7 @@ class Game(GoGame):
         super().__init__(board_x, board_y)
         self.player_ids = []
         self.cur_player_id = None
-        self.cur_player_color = 'black'
+        self.cur_player_color = "black"
         self._player_passed = []
         self.screenshot = GoScreenShot(board_x, board_y)
 
@@ -101,7 +101,7 @@ class GameHandler:
 
     def cur_player_color(self, chat_id):
         game = self._get_game_with_chat_id(chat_id)
-        return game.cur_player_color.value
+        return game.cur_player_color
 
     def create_image(self, chat_id):
         game = self._get_game_with_chat_id(chat_id)

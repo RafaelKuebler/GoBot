@@ -125,7 +125,3 @@ class TestVec2:
     def test_unpack(self):
         point = Vec2(3, 4)
         assert (3, 4) == tuple(point)
-
-    def test_str(self):
-        point = Vec2(3, 4)
-        assert str(point) == '(3, 4)'

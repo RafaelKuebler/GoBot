@@ -61,6 +61,22 @@ class TestGoGame:
         with pytest.raises(CoordOccupiedException):
             game.place_stone(self.coord(3, 3), "black")
 
+    def test_last_stone_placed(self):
+        game = GoGame(9, 9)
+        coords = [(0, 0), (4, 6), (2, 4)]
+        for x, y in coords:
+            game.place_stone(self.coord(x, y), "black")
+            assert game.last_stone_placed == (x, y)
+
+    def test_merge_groups(self):
+        game = GoGame(9, 9)
+        coords = {(3, 3), (3, 5), (3, 4)}
+        for coord in coords:
+            game.place_stone(self.coord(*coord), "white")
+
+        for x, y in coords:
+            assert game.board[x][y].group == coords
+
     def test_capture_single(self):
         game = GoGame(9, 9)
         game.place_stone(self.coord(5, 5), "white")
@@ -121,8 +137,3 @@ class TestGoGame:
 
         with pytest.raises(KoException):
             game.place_stone(self.coord(0, 0), "white")
-
-    # TODO: test merge group
-    # TODO: test group all same color after merge
-    # TODO: test last stone placed
-    # TODO: test not-ko (not single stone, different structure in general)
