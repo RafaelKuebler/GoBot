@@ -25,8 +25,8 @@ class GoScreenShot:
 
     def _load_img(self) -> None:
         self.BACKGROUND: str = settings.board_path
-        self.img = Image.open(self.BACKGROUND)  # TODO: type
-        self.draw = ImageDraw.Draw(self.img)  # TODO: type
+        self.img: Image = Image.open(self.BACKGROUND)
+        self.draw: ImageDraw = ImageDraw.Draw(self.img)
 
         self.background: Vec2 = Vec2(*self.img.size)
         self.border_size: Vec2 = self.background * .125
@@ -48,11 +48,12 @@ class GoScreenShot:
                 mark: bool = (x, y) == last_stone
                 self._draw_stone(x, y, board[x][y].color, mark)
 
-        if os.environ.get('GUI', 0) == 0:
+        if os.environ.get('GUI', 0) == "0":
             bio = BytesIO()
             self.img.save(bio, settings.image_extension)
             bio.seek(0)
             return bio
+
         return self.img
 
     def _draw_stone(self, x: int, y: int, color: str, marked: bool) -> None:

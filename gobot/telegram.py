@@ -18,8 +18,8 @@ game_handler = GameHandler()
 
 def start(bot, update) -> None:
     # TODO: parameter types
-    chat_id = update.message.chat_id
-    user_name = update.message.from_user.name.replace('\'', '')
+    chat_id: int = update.message.chat_id
+    user_name: str = update.message.from_user.name.replace('\'', '')
     logging.info(f"Chat {chat_id}, user {user_name} called /start")
 
     send_message(bot, chat_id, settings.greeting)
@@ -28,9 +28,9 @@ def start(bot, update) -> None:
 
 def new_game(bot, update) -> None:
     # TODO: parameter types
-    chat_id = update.message.chat_id
-    user_id = update.message.from_user.id
-    user_name = update.message.from_user.name.replace('\'', '')
+    chat_id: int = update.message.chat_id
+    user_id: int = update.message.from_user.id
+    user_name: str = update.message.from_user.name.replace('\'', '')
     logging.info(f"Chat {chat_id}, user {user_name} called /new")
 
     game_handler.new_game(chat_id, user_id)
@@ -41,14 +41,14 @@ def new_game(bot, update) -> None:
 
 def join(bot, update) -> None:
     # TODO: parameter types
-    chat_id = update.message.chat_id
-    user_id = update.message.from_user.id
-    user_name = update.message.from_user.name.replace('\'', '')
+    chat_id: int = update.message.chat_id
+    user_id: int = update.message.from_user.id
+    user_name: str = update.message.from_user.name.replace('\'', '')
     logging.info(f"Chat {chat_id}, user {user_name} called /join")
 
     game_handler.join(chat_id, user_id, user_name)
 
-    message = f"*{settings.start_game_text}*"
+    message: str = f"*{settings.start_game_text}*"
     send_message(bot, chat_id, message)
     show_board(bot, update)
     show_turn(bot, chat_id)
@@ -56,10 +56,10 @@ def join(bot, update) -> None:
 
 def place(bot, update, args) -> None:
     # TODO: parameter types
-    chat_id = update.message.chat_id
-    user_id = update.message.from_user.id
-    user_name = update.message.from_user.name.replace('\'', '')
-    coords = args[0]
+    chat_id: int = update.message.chat_id
+    user_id: int = update.message.from_user.id
+    user_name: str = update.message.from_user.name.replace('\'', '')
+    coords: str = args[0]
     logging.info(f"Chat {chat_id}, user {user_name} called /place at {coords}")
 
     try:
@@ -68,7 +68,7 @@ def place(bot, update, args) -> None:
         show_turn(bot, chat_id)
     except KoException as exception:
         send_message(bot, chat_id, str(exception))
-        ko_proverb = f"\"_{settings.ko_proverb}_\""
+        ko_proverb: str = f"\"_{settings.ko_proverb}_\""
         send_message(bot, chat_id, ko_proverb)
     except GoGameException as exception:
         send_message(bot, chat_id, str(exception))
@@ -76,9 +76,9 @@ def place(bot, update, args) -> None:
 
 def pass_turn(bot, update) -> None:
     # TODO: parameter types
-    chat_id = update.message.chat_id
-    user_id = update.message.from_user.id
-    user_name = update.message.from_user.name.replace('\'', '')
+    chat_id: int = update.message.chat_id
+    user_id: int = update.message.from_user.id
+    user_name: str = update.message.from_user.name.replace('\'', '')
     logging.info(f"Chat {chat_id}, user {user_name} called /pass")
 
     try:
@@ -86,7 +86,7 @@ def pass_turn(bot, update) -> None:
         if game_handler.both_players_passed(chat_id):
             game_over(bot, chat_id)
             return
-        message = settings.player_passed_text.format(user_name)
+        message: str = settings.player_passed_text.format(user_name)
         send_message(bot, chat_id, message)
         show_board(bot, update)
         show_turn(bot, chat_id)
@@ -96,7 +96,7 @@ def pass_turn(bot, update) -> None:
 
 def show_board(bot, update) -> None:
     # TODO: parameter types
-    chat_id = update.message.chat_id
+    chat_id: int = update.message.chat_id
 
     image = game_handler.create_image(chat_id)
     bot.send_photo(chat_id, photo=image)
@@ -104,8 +104,8 @@ def show_board(bot, update) -> None:
 
 def show_turn(bot, chat_id) -> None:
     # TODO: parameter types
-    cur_player_name = game_handler.cur_player_name(chat_id)
-    cur_color = game_handler.cur_player_color(chat_id)
+    cur_player_name: str = game_handler.cur_player_name(chat_id)
+    cur_color: str = game_handler.cur_player_color(chat_id)
 
     message = settings.cur_turn_text.format(cur_player_name, cur_color)
     send_message(bot, chat_id, message)
@@ -113,18 +113,18 @@ def show_turn(bot, chat_id) -> None:
 
 def display_proverb(bot, update) -> None:
     # TODO: parameter types
-    chat_id = update.message.chat_id
-    user_name = update.message.from_user.name.replace('\'', '')
+    chat_id: int = update.message.chat_id
+    user_name: str = update.message.from_user.name.replace('\'', '')
     logging.info(f"Chat {chat_id}, user {user_name} called /proverb")
 
-    proverb = random.choice(settings.go_proverbs)
-    message = f"\"_{proverb}_\""
+    proverb: str = random.choice(settings.go_proverbs)
+    message: str = f"\"_{proverb}_\""
     send_message(bot, chat_id, message)
 
 
 def unknown(bot, update) -> None:
     # TODO: parameter types
-    chat_id = update.message.chat_id
+    chat_id: int = update.message.chat_id
     send_message(bot, chat_id, settings.unknown_command_text)
 
 
