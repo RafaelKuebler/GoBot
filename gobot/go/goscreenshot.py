@@ -48,7 +48,7 @@ class GoScreenShot:
                 mark: bool = (x, y) == last_stone
                 self._draw_stone(x, y, board[x][y].color, mark)
 
-        if os.environ.get('GUI', 0) == "0":
+        if os.environ.get('GUI', "0") == "0":
             bio = BytesIO()
             self.img.save(bio, settings.image_extension)
             bio.seek(0)

@@ -5,6 +5,7 @@ import telegram
 import random
 import atexit
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+
 from . import settings
 from .exceptions import GoGameException
 from .go.exceptions import KoException
@@ -59,6 +60,9 @@ def place(bot, update, args) -> None:
     chat_id: int = update.message.chat_id
     user_id: int = update.message.from_user.id
     user_name: str = update.message.from_user.name.replace('\'', '')
+    if not args:
+        send_message(bot, chat_id, settings.error_no_coords)
+        return
     coords: str = args[0]
     logging.info(f"Chat {chat_id}, user {user_name} called /place at {coords}")
 

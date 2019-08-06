@@ -1,3 +1,4 @@
+import os
 import pytest
 from gobot.gamehandler import Game, GameHandler
 from gobot.exceptions import *
@@ -5,12 +6,14 @@ from gobot.exceptions import *
 __author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
 __version__ = "0.1"
 
+os.environ["MODE"] = "TEST"
+
 
 class TestGame:
     @pytest.fixture
     def global_vars(self):
-        self.player1_id = "ExamplePlayer1ID"
-        self.player2_id = "ExamplePlayer2ID"
+        self.player1_id = 5555555
+        self.player2_id = 7777777
 
     def setup_game(self, num_players=2):
         game = Game(9, 9)
@@ -47,9 +50,9 @@ class TestGame:
     def test_place_stone(self, mocker, global_vars):
         game = self.setup_game()
         coord = "a1"
-        mock_place_stone = mocker.patch('gobot.go.go.GoGame.place_stone')
+        mock_place_stone = mocker.patch('gobot.go.go.GoGame.place_stone_str_coord')
 
-        game.place_stone(coord)
+        game.place_stone_str_coord(coord)
         mock_place_stone.assert_called_with(coord, "black")
         assert game.cur_player_id == self.player1_id
         assert not game.both_players_passed
@@ -86,12 +89,12 @@ class TestGameHandler:
 
     @pytest.fixture
     def global_vars(self):
-        self.chat_id = "dummy_chat_id"
-        self.player1_id = "ExamplePlayer1ID"
+        self.chat_id = 9999999
+        self.player1_id = 555555
         self.player1_name = "ExamplePlayer1Name"
-        self.player2_id = "ExamplePlayer2ID"
+        self.player2_id = 777777
         self.player2_name = "ExamplePlayer2Name"
-        self.player3_id = "ExamplePlayerID3"
+        self.player3_id = 888888
         self.player3_name = "ExamplePlayerName3"
         self.coord = "a1"
 
@@ -156,7 +159,7 @@ class TestGameHandler:
 
     def test_place_stone(self, mocker, game_handler, global_vars):
         self.setup_game(game_handler)
-        mock_place_stone = mocker.patch('gobot.gamehandler.Game.place_stone')
+        mock_place_stone = mocker.patch('gobot.gamehandler.Game.place_stone_str_coord')
 
         game_handler.place_stone(self.chat_id, self.player2_id, self.coord)
         mock_place_stone.assert_called_with(self.coord)

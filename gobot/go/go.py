@@ -36,6 +36,7 @@ class GoGame:
         self._check_board_size(size_x, size_y)
         self._create_board()
         self._last_captured_single_stone: Optional[Tuple[int, int]] = None
+        # TODO: persist last captured stone for ko check
 
     def _create_board(self) -> None:
         for x in range(self.size_x):
@@ -44,9 +45,13 @@ class GoGame:
                 column.append(GridPosition())
             self.board.append(column)
 
-    def place_stone(self, coord: str, color: str) -> None:
-        self._check_stone_coord(coord)
+    def place_stone_str_coord(self, coord: str, color: str) -> None:
+        self._check_stone_str_coord(coord)
         x, y = self._transform_coord(coord)
+        self.place_stone(x, y, color)
+
+    def place_stone(self, x: int, y: int, color: str) -> None:
+        self._check_stone_coord(x, y)
         self._check_pos_taken(x, y)
 
         adjacent_groups = self._detect_adjacent_groups(x, y, color)
@@ -113,7 +118,7 @@ class GoGame:
     def _transform_coord(coord: str) -> Tuple[int, int]:
         # TODO: implement notation as in https://senseis.xmp.net/?Coordinates
         letter = ord(coord[0]) - ord('a')
-        number = int(coord[1]) - 1
+        number = int(coord[1:]) - 1
         return letter, number
 
     @staticmethod
@@ -121,12 +126,16 @@ class GoGame:
         if (size_x, size_y) not in [(9, 9), (13, 13), (19, 19)]:
             raise InvalidBoardSizeException(settings.error_invalid_size)
 
-    def _check_stone_coord(self, coord) -> None:
-        if not coord[1:].isdigit():
+    @staticmethod
+    def _check_stone_str_coord(coord: str) -> None:
+        has_letter = ord('a') <= ord(coord[0]) < ord('z')
+        has_digit = coord[1:].isdigit()
+        if not has_letter or not has_digit:
             raise InvalidCoordinateException(settings.error_invalid_coords)
 
-        x_in_range: bool = ord('a') <= ord(coord[0]) < (ord('a') + self.size_x)
-        y_in_range: bool = 1 <= int(coord[1:]) <= self.size_y
+    def _check_stone_coord(self, x: int, y: int) -> None:
+        x_in_range: bool = 0 <= x < self.size_x
+        y_in_range: bool = 0 <= y < self.size_y
         if not x_in_range or not y_in_range:
             raise InvalidCoordinateException(settings.error_invalid_coords)
 

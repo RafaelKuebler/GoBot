@@ -1,9 +1,10 @@
 import random
 from PIL.JpegImagePlugin import JpegImageFile
 from typing import List, Dict, Optional
-from gobot.go.go import GoGame
-from gobot.go.goscreenshot import GoScreenShot
+from .go.go import GoGame
+from .go.goscreenshot import GoScreenShot
 from .exceptions import *
+from .postgres_interface import Postgres
 from . import settings
 
 __author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
@@ -16,29 +17,29 @@ class Game(GoGame):
         self.player_ids: List[int] = []
         self.cur_player_id: Optional[int] = None
         self.cur_player_color: str = "black"
-        self._player_passed: List[bool] = []
+        self.player_passed: List[bool] = []
         self.screenshot: GoScreenShot = GoScreenShot(board_x, board_y)
 
     @property
     def both_players_passed(self) -> bool:
-        if not self._player_passed:
+        if not self.player_passed:
             return False
-        return all(self._player_passed)
+        return all(self.player_passed)
 
     def add_player(self, player_id: int) -> None:
         self.player_ids.append(player_id)
         self.cur_player_id = player_id
-        self._player_passed.append(False)
+        self.player_passed.append(False)
 
-    def place_stone(self, coord: str, color: Optional[str] = None) -> None:
-        super().place_stone(coord, self.cur_player_color)
-        del self._player_passed[0]
-        self._player_passed.append(False)
+    def place_stone_str_coord(self, coord: str, color: Optional[str] = None) -> None:
+        super().place_stone_str_coord(coord, self.cur_player_color)
+        del self.player_passed[0]
+        self.player_passed.append(False)
         self._change_turn()
 
     def pass_turn(self) -> None:
-        del self._player_passed[0]
-        self._player_passed.append(True)
+        del self.player_passed[0]
+        self.player_passed.append(True)
         self._change_turn()
 
     def _change_turn(self) -> None:
@@ -61,26 +62,32 @@ class GameHandler:
     def __init__(self) -> None:
         self.games: Dict[int, Game] = {}
         self.players: Dict[int, str] = {}
+        self.DB = Postgres()
 
     def new_game(self, chat_id: int, player_id: int) -> None:
         if chat_id in self.games:
             game = self.games[chat_id]
             self._check_player_permissions(player_id, game.player_ids)
         self.games[chat_id] = Game(9, 9)
+        self.DB.delete_game(chat_id)
 
     def join(self, chat_id: int, player_id: int, player_name: str) -> None:
-        # TODO: import of detected saved games
         game = self._get_game_with_chat_id(chat_id)
         self._check_player_limit(game)
         self.players[player_id] = player_name
         game.add_player(player_id)
+
+        if len(game.player_ids) == 2:
+            names = [self.players[player_id] for player_id in game.player_ids]
+            self.DB.new_game(chat_id, *game.player_ids, *names, game.size_x, game.size_y)
 
     def place_stone(self, chat_id: int, player_id: int, coord: str) -> None:
         game = self._get_game_with_chat_id(chat_id)
         self._check_enough_players(game)
         self._check_player_permissions(player_id, game.player_ids)
         self._check_player_turn(player_id, game.cur_player_id)
-        game.place_stone(coord)
+        game.place_stone_str_coord(coord)
+        self._update_db(chat_id, game)
 
     def pass_turn(self, chat_id: int, player_id: int) -> None:
         game = self._get_game_with_chat_id(chat_id)
@@ -88,6 +95,7 @@ class GameHandler:
         self._check_player_permissions(player_id, game.player_ids)
         self._check_player_turn(player_id, game.cur_player_id)
         game.pass_turn()
+        self._update_db(chat_id, game)
 
     def both_players_passed(self, chat_id: int) -> bool:
         game = self._get_game_with_chat_id(chat_id)
@@ -111,17 +119,40 @@ class GameHandler:
         game = self._get_game_with_chat_id(chat_id)
         return game.take_screenshot()
 
-    def save_games(self) -> None:
-        # TODO: export all games to file system
-        pass
-
     def remove_game(self, chat_id: int) -> None:
         if chat_id in self.games:
             del self.games[chat_id]
+        self.DB.delete_game(chat_id)
+
+    def _update_db(self, chat_id: int, game: Game):
+        self.DB.update_game(chat_id, game.cur_player_id, game.cur_player_color,
+                            game.player_passed, game.board, game.last_stone_placed)
 
     def _get_game_with_chat_id(self, chat_id: int) -> Game:
-        self._check_chat_id(chat_id, self.games)
-        return self.games[chat_id]
+        if chat_id in self.games:
+            return self.games[chat_id]
+
+        game_state = self.DB.load_game(chat_id)
+        if not game_state:
+            raise InexistentGameException(settings.error_inexistent_game)
+
+        game = Game(game_state['size_x'], game_state['size_y'])
+        self.games[chat_id] = game
+        game.player_ids = game_state['player_ids']
+        self.players[game.player_ids[0]] = game_state['player1_name']
+        self.players[game.player_ids[1]] = game_state['player2_name']
+        game.cur_player_color = game_state['turn_color']
+        game.cur_player_id = game_state['turn_player']
+        game.last_stone_placed = (int(val) for val in game_state['last_stone'].split(','))
+        game.player_passed = [val == "True" for val in game_state['player_passed'].split(',')]
+
+        board = game_state['board']
+        for coord in board:
+            x, y = [int(val) for val in coord.split(',')]
+            color = board[coord]
+            game.place_stone(x, y, color)
+
+        return game
 
     @staticmethod
     def _check_player_turn(player: int, cur_player: int) -> None:
@@ -144,8 +175,3 @@ class GameHandler:
     def _check_player_permissions(player: int, players: List[int]) -> None:
         if player not in players:
             raise NoPermissionsException(settings.error_permissions)
-
-    @staticmethod
-    def _check_chat_id(chat_id: int, games: Dict[int, Game]) -> None:
-        if chat_id not in games:
-            raise InexistentGameException(settings.error_inexistent_game)

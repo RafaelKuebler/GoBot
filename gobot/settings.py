@@ -55,6 +55,7 @@ go_proverbs = [
 
 ko_proverb = "If you don't like Ko don't Play Go."
 
+error_no_coords = "Please supply coordinates!"
 error_inexistent_game = "Please start a game with /new first!"
 error_incorrect_turn = "It is not your turn!"
 error_not_enough_players = "Another player needs to join the game with /join!"

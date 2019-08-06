@@ -42,7 +42,7 @@ class TestGoGame:
         game = GoGame(9, 9)
         coords = [(0, 0), (4, 1), (4, 4)]
         for x, y in coords:
-            game.place_stone(self.coord(x, y), "black")
+            game.place_stone_str_coord(self.coord(x, y), "black")
             assert not game.board[x][y].free
             assert (x, y) in game.board[x][y].group
             assert len(game.board[x][y].group) == 1
@@ -53,87 +53,87 @@ class TestGoGame:
         coords = ['x9', 'y22', 'o2', 'a30', 'test']
         for coord in coords:
             with pytest.raises(InvalidCoordinateException):
-                game.place_stone(coord, "black")
+                game.place_stone_str_coord(coord, "black")
 
     def test_place_stone_taken_coord(self):
         game = GoGame(9, 9)
-        game.place_stone(self.coord(3, 3), "white")
+        game.place_stone_str_coord(self.coord(3, 3), "white")
         with pytest.raises(CoordOccupiedException):
-            game.place_stone(self.coord(3, 3), "black")
+            game.place_stone_str_coord(self.coord(3, 3), "black")
 
     def test_last_stone_placed(self):
         game = GoGame(9, 9)
         coords = [(0, 0), (4, 6), (2, 4)]
         for x, y in coords:
-            game.place_stone(self.coord(x, y), "black")
+            game.place_stone_str_coord(self.coord(x, y), "black")
             assert game.last_stone_placed == (x, y)
 
     def test_merge_groups(self):
         game = GoGame(9, 9)
         coords = {(3, 3), (3, 5), (3, 4)}
         for coord in coords:
-            game.place_stone(self.coord(*coord), "white")
+            game.place_stone_str_coord(self.coord(*coord), "white")
 
         for x, y in coords:
             assert game.board[x][y].group == coords
 
     def test_capture_single(self):
         game = GoGame(9, 9)
-        game.place_stone(self.coord(5, 5), "white")
-        game.place_stone(self.coord(5, 4), "black")
-        game.place_stone(self.coord(5, 6), "black")
-        game.place_stone(self.coord(4, 5), "black")
-        game.place_stone(self.coord(6, 5), "black")
+        game.place_stone_str_coord(self.coord(5, 5), "white")
+        game.place_stone_str_coord(self.coord(5, 4), "black")
+        game.place_stone_str_coord(self.coord(5, 6), "black")
+        game.place_stone_str_coord(self.coord(4, 5), "black")
+        game.place_stone_str_coord(self.coord(6, 5), "black")
         assert game.board[5][5].free
 
     def test_capture_group(self) -> None:
         game = GoGame(9, 9)
-        game.place_stone(self.coord(5, 5), "white")
-        game.place_stone(self.coord(5, 6), "white")
-        game.place_stone(self.coord(5, 4), "black")
-        game.place_stone(self.coord(5, 7), "black")
-        game.place_stone(self.coord(4, 5), "black")
-        game.place_stone(self.coord(4, 6), "black")
-        game.place_stone(self.coord(6, 5), "black")
-        game.place_stone(self.coord(6, 6), "black")
+        game.place_stone_str_coord(self.coord(5, 5), "white")
+        game.place_stone_str_coord(self.coord(5, 6), "white")
+        game.place_stone_str_coord(self.coord(5, 4), "black")
+        game.place_stone_str_coord(self.coord(5, 7), "black")
+        game.place_stone_str_coord(self.coord(4, 5), "black")
+        game.place_stone_str_coord(self.coord(4, 6), "black")
+        game.place_stone_str_coord(self.coord(6, 5), "black")
+        game.place_stone_str_coord(self.coord(6, 6), "black")
         assert game.board[5][5].free
         assert game.board[5][6].free
 
     def test_self_capture(self) -> None:
         game = GoGame(9, 9)
-        game.place_stone(self.coord(5, 5), "white")
-        game.place_stone(self.coord(5, 4), "black")
-        game.place_stone(self.coord(5, 7), "black")
-        game.place_stone(self.coord(4, 5), "black")
-        game.place_stone(self.coord(4, 6), "black")
-        game.place_stone(self.coord(6, 5), "black")
-        game.place_stone(self.coord(6, 6), "black")
+        game.place_stone_str_coord(self.coord(5, 5), "white")
+        game.place_stone_str_coord(self.coord(5, 4), "black")
+        game.place_stone_str_coord(self.coord(5, 7), "black")
+        game.place_stone_str_coord(self.coord(4, 5), "black")
+        game.place_stone_str_coord(self.coord(4, 6), "black")
+        game.place_stone_str_coord(self.coord(6, 5), "black")
+        game.place_stone_str_coord(self.coord(6, 6), "black")
         with pytest.raises(SelfCaptureException):
-            game.place_stone(self.coord(5, 6), "white")
+            game.place_stone_str_coord(self.coord(5, 6), "white")
 
     def test_ko(self):
         game = GoGame(9, 9)
-        game.place_stone(self.coord(5, 5), "white")
-        game.place_stone(self.coord(7, 5), "white")
-        game.place_stone(self.coord(6, 4), "white")
-        game.place_stone(self.coord(6, 6), "white")
-        game.place_stone(self.coord(5, 6), "black")
-        game.place_stone(self.coord(5, 4), "black")
-        game.place_stone(self.coord(4, 5), "black")
-        game.place_stone(self.coord(6, 5), "black")
+        game.place_stone_str_coord(self.coord(5, 5), "white")
+        game.place_stone_str_coord(self.coord(7, 5), "white")
+        game.place_stone_str_coord(self.coord(6, 4), "white")
+        game.place_stone_str_coord(self.coord(6, 6), "white")
+        game.place_stone_str_coord(self.coord(5, 6), "black")
+        game.place_stone_str_coord(self.coord(5, 4), "black")
+        game.place_stone_str_coord(self.coord(4, 5), "black")
+        game.place_stone_str_coord(self.coord(6, 5), "black")
         assert game.board[5][5].free
 
         with pytest.raises(KoException):
-            game.place_stone(self.coord(5, 5), "white")
+            game.place_stone_str_coord(self.coord(5, 5), "white")
 
     def test_ko2(self):
         game = GoGame(9, 9)
-        game.place_stone(self.coord(0, 0), "white")
-        game.place_stone(self.coord(2, 0), "white")
-        game.place_stone(self.coord(1, 1), "white")
-        game.place_stone(self.coord(0, 1), "black")
-        game.place_stone(self.coord(1, 0), "black")
+        game.place_stone_str_coord(self.coord(0, 0), "white")
+        game.place_stone_str_coord(self.coord(2, 0), "white")
+        game.place_stone_str_coord(self.coord(1, 1), "white")
+        game.place_stone_str_coord(self.coord(0, 1), "black")
+        game.place_stone_str_coord(self.coord(1, 0), "black")
         assert game.board[0][0].free
 
         with pytest.raises(KoException):
-            game.place_stone(self.coord(0, 0), "white")
+            game.place_stone_str_coord(self.coord(0, 0), "white")
