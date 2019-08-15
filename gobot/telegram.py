@@ -3,8 +3,10 @@ import sys
 import logging
 import telegram
 import random
-import atexit
+from typing import List
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram.bot import Bot
+from telegram.update import Update
 
 from . import settings
 from .exceptions import GoGameException
@@ -17,8 +19,7 @@ __version__ = "0.1"
 game_handler = GameHandler()
 
 
-def start(bot, update) -> None:
-    # TODO: parameter types
+def start(bot: Bot, update: Update) -> None:
     chat_id: int = update.message.chat_id
     user_name: str = update.message.from_user.name.replace('\'', '')
     logging.info(f"Chat {chat_id}, user {user_name} called /start")
@@ -27,8 +28,7 @@ def start(bot, update) -> None:
     send_message(bot, chat_id, settings.commands)
 
 
-def new_game(bot, update) -> None:
-    # TODO: parameter types
+def new_game(bot: Bot, update: Update) -> None:
     chat_id: int = update.message.chat_id
     user_id: int = update.message.from_user.id
     user_name: str = update.message.from_user.name.replace('\'', '')
@@ -40,8 +40,7 @@ def new_game(bot, update) -> None:
     send_message(bot, chat_id, settings.new_game_text)
 
 
-def join(bot, update) -> None:
-    # TODO: parameter types
+def join(bot: Bot, update: Update) -> None:
     chat_id: int = update.message.chat_id
     user_id: int = update.message.from_user.id
     user_name: str = update.message.from_user.name.replace('\'', '')
@@ -55,8 +54,7 @@ def join(bot, update) -> None:
     show_turn(bot, chat_id)
 
 
-def place(bot, update, args) -> None:
-    # TODO: parameter types
+def place(bot: Bot, update: Update, args: List[str]) -> None:
     chat_id: int = update.message.chat_id
     user_id: int = update.message.from_user.id
     user_name: str = update.message.from_user.name.replace('\'', '')
@@ -78,8 +76,7 @@ def place(bot, update, args) -> None:
         send_message(bot, chat_id, str(exception))
 
 
-def pass_turn(bot, update) -> None:
-    # TODO: parameter types
+def pass_turn(bot: Bot, update: Update) -> None:
     chat_id: int = update.message.chat_id
     user_id: int = update.message.from_user.id
     user_name: str = update.message.from_user.name.replace('\'', '')
@@ -98,16 +95,14 @@ def pass_turn(bot, update) -> None:
         send_message(bot, chat_id, str(exception))
 
 
-def show_board(bot, update) -> None:
-    # TODO: parameter types
+def show_board(bot: Bot, update: Update) -> None:
     chat_id: int = update.message.chat_id
 
     image = game_handler.create_image(chat_id)
     bot.send_photo(chat_id, photo=image)
 
 
-def show_turn(bot, chat_id) -> None:
-    # TODO: parameter types
+def show_turn(bot: Bot, chat_id: int) -> None:
     cur_player_name: str = game_handler.cur_player_name(chat_id)
     cur_color: str = game_handler.cur_player_color(chat_id)
 
@@ -115,8 +110,7 @@ def show_turn(bot, chat_id) -> None:
     send_message(bot, chat_id, message)
 
 
-def display_proverb(bot, update) -> None:
-    # TODO: parameter types
+def display_proverb(bot: Bot, update: Update) -> None:
     chat_id: int = update.message.chat_id
     user_name: str = update.message.from_user.name.replace('\'', '')
     logging.info(f"Chat {chat_id}, user {user_name} called /proverb")
@@ -126,22 +120,16 @@ def display_proverb(bot, update) -> None:
     send_message(bot, chat_id, message)
 
 
-def unknown(bot, update) -> None:
-    # TODO: parameter types
+def unknown(bot: Bot, update: Update) -> None:
     chat_id: int = update.message.chat_id
     send_message(bot, chat_id, settings.unknown_command_text)
 
 
-def send_message(bot, chat_id, text) -> None:
-    # TODO: parameter types
+def send_message(bot: Bot, chat_id: int, text: str) -> None:
     bot.send_message(chat_id=chat_id, text=text, parse_mode=telegram.ParseMode.MARKDOWN)
 
 
-def save_games() -> None:
-    game_handler.save_games()
-
-
-def game_over(bot, chat_id) -> None:
+def game_over(bot: Bot, chat_id: int) -> None:
     # score = game_handler.calculate_result(chat_id)
     game_handler.remove_game(chat_id)
     send_message(bot, chat_id, settings.game_over_text)
@@ -169,8 +157,6 @@ def start_bot(key: str) -> None:
         logging.info(f"Added command {handler.command} handler")
     dispatcher.add_handler(MessageHandler(Filters.command, unknown))
     logging.info(f"Added unknown command handler")
-
-    atexit.register(save_games)
 
     if 'MODE' not in os.environ:
         logging.error("No MODE specified!")

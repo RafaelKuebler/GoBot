@@ -11,7 +11,7 @@ __version__ = "0.1"
 
 class Postgres:
     def __init__(self):
-        self.use_db: bool = os.environ.get('MODE') != 'TEST'
+        self.use_db: bool = os.environ.get('DB', 1) == '1'
         if not self.use_db:
             return
 

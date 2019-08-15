@@ -1,7 +1,7 @@
 import os
 from io import BytesIO
 from PIL import Image, ImageDraw
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Optional, Any
 
 from . import settings
 from .go import GridPosition
@@ -37,8 +37,7 @@ class GoScreenShot:
 
     # TODO: create nice board graphic where indexing and board occupy space evenly
     def take_screenshot(self, board: List[List[GridPosition]],
-                        last_stone: Tuple[int, int]):
-        # TODO: return type
+                        last_stone: Optional[Tuple[int, int]]) -> Any:
         self._load_img()
 
         for x in range(self.board_size.x):
@@ -48,7 +47,7 @@ class GoScreenShot:
                 mark: bool = (x, y) == last_stone
                 self._draw_stone(x, y, board[x][y].color, mark)
 
-        if os.environ.get('GUI', "0") == "0":
+        if os.environ["MODE"] != "GUI":
             bio = BytesIO()
             self.img.save(bio, settings.image_extension)
             bio.seek(0)

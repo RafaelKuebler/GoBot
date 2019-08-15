@@ -48,7 +48,7 @@ def left_click(event):
     x = event.x
     y = event.y
     coord = coords(x, y)
-    game.place_stone(coord, "white")
+    game.place_stone_str_coord(coord, "white")
     replace_image()
 
 
@@ -56,7 +56,7 @@ def right_click(event):
     x = event.x
     y = event.y
     coord = coords(x, y)
-    game.place_stone(coord, "black")
+    game.place_stone_str_coord(coord, "black")
     replace_image()
 
 

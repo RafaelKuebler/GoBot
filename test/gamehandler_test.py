@@ -6,7 +6,7 @@ from gobot.exceptions import *
 __author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
 __version__ = "0.1"
 
-os.environ["MODE"] = "TEST"
+os.environ["DB"] = "0"
 
 
 class TestGame:
@@ -247,4 +247,3 @@ class TestGameHandler:
         assert self.chat_id not in game_handler.games
 
     # TODO: test calculate_result
-    # TODO: test save games
