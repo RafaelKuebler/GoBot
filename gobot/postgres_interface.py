@@ -1,7 +1,8 @@
 import os
 import json
+import logging
 import psycopg2
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Tuple, Optional
 
 from .go.go import GridPosition
 
@@ -11,11 +12,13 @@ __version__ = "0.1"
 
 class Postgres:
     def __init__(self):
-        self.use_db: bool = os.environ.get('DB', 1) == '1'
+        self.use_db: bool = os.environ.get('DB', '1') == '1'
         if not self.use_db:
+            logging.info("Not using DB")
             return
 
         self._conn = psycopg2.connect(os.environ['DATABASE_URL'], sslmode='require')
+        logging.info("Established connection to DB")
         self._cur = self._conn.cursor()
 
     def new_game(self,
@@ -29,6 +32,7 @@ class Postgres:
         if not self.use_db:
             return
 
+        logging.info(f"Creating new game {chat_id} in DB")
         self._cur.execute(f"INSERT INTO players (id, name) "
                           f"VALUES ({player1_id}, '{player1_name}') "
                           f"ON CONFLICT (id) DO UPDATE SET name='{player1_name}';")
@@ -37,16 +41,17 @@ class Postgres:
                           f"ON CONFLICT (id) DO UPDATE SET name='{player1_name}';")
 
         self._cur.execute(f"INSERT INTO games (chat_id, player1, player2, size_x, size_y, "
-                          f"state, turn_color, turn_player, last_stone, player_passed)"
+                          f"state, turn_color, turn_player, last_stone, last_capt_stone, player_passed)"
                           f"VALUES ({chat_id}, {player1_id}, {player2_id}, {size_x}, {size_y}, "
                           "'{}', 'black', "
-                          f"'{player2_id}', '', 'False,False');")
+                          f"'{player2_id}', '', '', 'False,False');")
         self._conn.commit()
 
     def delete_game(self, chat_id: int) -> None:
         if not self.use_db:
             return
 
+        logging.info(f"Removing game {chat_id} from DB")
         self._cur.execute(f"DELETE FROM games "
                           f"WHERE chat_id={chat_id};")
         self._conn.commit()
@@ -57,7 +62,8 @@ class Postgres:
                     cur_color: str,
                     player_passed: List[bool],
                     board: List[List[GridPosition]],
-                    last_stone: Tuple[int, int]) -> None:
+                    last_placed_stone: Tuple[int, int],
+                    last_capt_stone: Optional[Tuple[int, int]]) -> None:
         if not self.use_db:
             return
 
@@ -67,11 +73,16 @@ class Postgres:
                 if not board[x][y].free:
                     clean_state[f"{x},{y}"] = board[x][y].color
 
+        last_capt_stone_str = ""
+        if last_capt_stone is not None:
+            last_capt_stone_str = f"{last_capt_stone[0]},{last_capt_stone[1]}"
+
         self._cur.execute(f"UPDATE games SET "
                           f"state='{json.dumps(clean_state)}', "
                           f"turn_color='{cur_color}', "
                           f"turn_player={cur_player}, "
-                          f"last_stone='{last_stone[0]},{last_stone[1]}', "
+                          f"last_stone='{last_placed_stone[0]},{last_placed_stone[1]}', "
+                          f"last_capt_stone='{last_capt_stone_str}', "
                           f"player_passed='{player_passed[0]},{player_passed[1]}' "
                           f"WHERE chat_id='{chat_id}';")
         self._conn.commit()
@@ -80,6 +91,7 @@ class Postgres:
         if not self.use_db:
             return {}
 
+        logging.info(f"Loading game {chat_id} from DB")
         self._cur.execute(f"SELECT * FROM games "
                           f"FULL OUTER JOIN players first ON first.id=games.player1 "
                           f"FULL OUTER JOIN players second ON second.id=games.player2 "
@@ -87,6 +99,7 @@ class Postgres:
 
         rows = self._cur.fetchall()
         if not rows:
+            logging.info(f"Game {chat_id} not fround in DB")
             return {}
         row = rows[0]
 
@@ -98,9 +111,10 @@ class Postgres:
             'turn_color': row[6],
             'turn_player': row[7],
             'last_stone': row[8],
-            'player_passed': row[9],
-            'player1_name': row[10],
-            'player2_name': row[11] if len(row) == 12 else row[10]
+            'last_capt_stone': row[9],
+            'player_passed': row[10],
+            'player1_name': row[11],
+            'player2_name': row[12] if len(row) == 13 else row[11]
         }
 
         return game_state

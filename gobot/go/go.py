@@ -35,8 +35,7 @@ class GoGame:
 
         self._check_board_size(size_x, size_y)
         self._create_board()
-        self._last_captured_single_stone: Optional[Tuple[int, int]] = None
-        # TODO: persist last captured stone for ko check
+        self.last_captured_single_stone: Optional[Tuple[int, int]] = None
 
     def _create_board(self) -> None:
         for x in range(self.size_x):
@@ -49,6 +48,7 @@ class GoGame:
         self._check_stone_str_coord(coord)
         x, y = self._transform_coord(coord)
         self.place_stone(x, y, color)
+        self.last_stone_placed = (x, y)
 
     def place_stone(self, x: int, y: int, color: str) -> None:
         self._check_stone_coord(x, y)
@@ -67,11 +67,11 @@ class GoGame:
 
         self._capture_neighbors(opponent_groups_atari)
         self._merge_groups(own_group, color)
-        self.last_stone_placed = (x, y)
 
     def _capture_neighbors(self, opponent_groups: List[Set[Tuple[int, int]]]) -> None:
+        self.last_captured_single_stone = None
         if len(opponent_groups) == 1 and len(opponent_groups[0]) == 1:
-            self._last_captured_single_stone = list(opponent_groups[0])[0]
+            self.last_captured_single_stone = list(opponent_groups[0])[0]
 
         for group in opponent_groups:
             for x, y in group.copy():
@@ -151,7 +151,7 @@ class GoGame:
         - The stone that would be captured is the last placed stone
         """
 
-        if self._last_captured_single_stone is None:
+        if self.last_captured_single_stone is None:
             return
 
         single_threatened_neighbor: Optional[Tuple[int, int]] = None

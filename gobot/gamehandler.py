@@ -126,7 +126,8 @@ class GameHandler:
 
     def _update_db(self, chat_id: int, game: Game):
         self.DB.update_game(chat_id, game.cur_player_id, game.cur_player_color,
-                            game.player_passed, game.board, game.last_stone_placed)
+                            game.player_passed, game.board, game.last_stone_placed,
+                            game.last_captured_single_stone)
 
     def _get_game_with_chat_id(self, chat_id: int) -> Game:
         if chat_id in self.games:
@@ -143,7 +144,6 @@ class GameHandler:
         self.players[game.player_ids[1]] = game_state['player2_name']
         game.cur_player_color = game_state['turn_color']
         game.cur_player_id = game_state['turn_player']
-        game.last_stone_placed = (int(val) for val in game_state['last_stone'].split(','))
         game.player_passed = [val == "True" for val in game_state['player_passed'].split(',')]
 
         board = game_state['board']
@@ -151,6 +151,10 @@ class GameHandler:
             x, y = [int(val) for val in coord.split(',')]
             color = board[coord]
             game.place_stone(x, y, color)
+
+        game.last_stone_placed = tuple(int(val) for val in game_state['last_stone'].split(','))
+        if game_state['last_capt_stone'] != "":
+            game.last_captured_single_stone = tuple(int(val) for val in game_state['last_capt_stone'].split(','))
 
         return game
 
