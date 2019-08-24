@@ -93,8 +93,7 @@ class TelegramInterface:
             self.send_message(bot, chat_id, str(exception))
 
     def _unknown(self, bot: Bot, update: Update) -> None:
-        chat_id: int = update.message.chat_id
-        self.send_message(bot, chat_id, settings.unknown_command_text)
+        self._place(bot, update, [update.message.text.replace('/', '')])
 
     def _game_over(self, bot: Bot, chat_id: int) -> None:
         # score = game_handler.calculate_result(chat_id)

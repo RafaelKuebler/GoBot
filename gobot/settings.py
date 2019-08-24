@@ -10,7 +10,6 @@ commands = "These are my available commands:\n" \
 
 new_game_text = "You created a new game! Another player can join with the /join command."
 start_game_text = "Let the game begin!"
-unknown_command_text = "Sorry, I didn't understand that command."
 player_passed_text = "Player {} passed"
 cur_turn_text = "It is {}'s ({}) turn"
 game_over_text = "The game is over. Well played!"
