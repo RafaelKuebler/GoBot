@@ -14,9 +14,9 @@ you a visualization of the game board after every move.
 
 <img alt="Start screenshot" src="https://user-images.githubusercontent.com/9216979/49282745-35360200-f490-11e8-8718-fd7966f7330d.jpeg" width="300"> <img alt="Game screenshot" src="https://user-images.githubusercontent.com/9216979/49282878-89d97d00-f490-11e8-86d9-ec2906ee5583.jpg" width="298">
 
-To try him out, just type **@GoSenseiBot** into your chat or add it to one of your groups!
+To try him out, just search for **@GoSenseiBot** or add it to one of your groups!
 
-*Heads up: The bot is running permanently on Heroku! However, since I am using the free tier, the game state will not be persisted after the bot is inactive for more than 30 minutes (working on this!)*
+The bot is permanently running on Heroku.
 
 ## Built With
 
