@@ -3,6 +3,7 @@ import json
 import logging
 import psycopg2
 from typing import List, Dict, Any, Tuple, Optional
+from pypika import PostgreSQLQuery, Table, Tables
 
 from .go.go import GridPosition
 
@@ -32,28 +33,35 @@ class Postgres:
         if not self.use_db:
             return
 
+        games, players = Tables('games', 'players')
         logging.info(f"Creating new game {chat_id} in DB")
-        self._cur.execute(f"INSERT INTO players (id, name) "
-                          f"VALUES ({player1_id}, '{player1_name}') "
-                          f"ON CONFLICT (id) DO UPDATE SET name='{player1_name}';")
-        self._cur.execute(f"INSERT INTO players (id, name) "
-                          f"VALUES ({player2_id}, '{player2_name}') "
-                          f"ON CONFLICT (id) DO UPDATE SET name='{player1_name}';")
+        player1_query = PostgreSQLQuery.into(players) \
+            .insert(player1_id, player1_name) \
+            .on_conflict(players.id).do_update(players.name, player1_name)
+        player2_query = PostgreSQLQuery.into(players) \
+            .insert(player2_id, player2_name) \
+            .on_conflict(players.id).do_update(players.name, player2_name)
 
-        self._cur.execute(f"INSERT INTO games (chat_id, player1, player2, size_x, size_y, "
-                          f"state, turn_color, turn_player, last_stone, last_capt_stone, player_passed)"
-                          f"VALUES ({chat_id}, {player1_id}, {player2_id}, {size_x}, {size_y}, "
-                          "'{}', 'black', "
-                          f"'{player2_id}', '', '', 'False,False');")
+        new_game_query = PostgreSQLQuery.into(games) \
+            .insert(chat_id, player1_id, player2_id,
+                    size_x, size_y, '{}', 'black',
+                    player2_id, '', '', 'False,False')
+
+        self._cur.execute(player1_query.get_sql())
+        self._cur.execute(player2_query.get_sql())
+        self._cur.execute(new_game_query.get_sql())
         self._conn.commit()
 
     def delete_game(self, chat_id: int) -> None:
         if not self.use_db:
             return
 
+        games = Table('games')
         logging.info(f"Removing game {chat_id} from DB")
-        self._cur.execute(f"DELETE FROM games "
-                          f"WHERE chat_id={chat_id};")
+        delete_game_query = PostgreSQLQuery.from_(games) \
+            .delete() \
+            .where(games.chat_id == chat_id)
+        self._cur.execute(delete_game_query.get_sql())
         self._conn.commit()
 
     def update_game(self,
@@ -77,26 +85,38 @@ class Postgres:
         if last_capt_stone is not None:
             last_capt_stone_str = f"{last_capt_stone[0]},{last_capt_stone[1]}"
 
-        self._cur.execute(f"UPDATE games SET "
-                          f"state='{json.dumps(clean_state)}', "
-                          f"turn_color='{cur_color}', "
-                          f"turn_player={cur_player}, "
-                          f"last_stone='{last_placed_stone[0]},{last_placed_stone[1]}', "
-                          f"last_capt_stone='{last_capt_stone_str}', "
-                          f"player_passed='{player_passed[0]},{player_passed[1]}' "
-                          f"WHERE chat_id='{chat_id}';")
+        games = Table('games')
+        update_game_query = PostgreSQLQuery.update(games) \
+            .set(games.state, json.dumps(clean_state)) \
+            .set(games.turn_color, cur_color) \
+            .set(games.turn_player, cur_player) \
+            .set(games.last_stone, f'{last_placed_stone[0]},{last_placed_stone[1]}') \
+            .set(games.last_capt_stone, last_capt_stone_str) \
+            .set(games.player_passed, f'{player_passed[0]},{player_passed[1]}') \
+            .where(games.chat_id == chat_id)
+
+        self._cur.execute(update_game_query.get_sql())
         self._conn.commit()
 
     def load_game(self, chat_id: int) -> Dict[str, Any]:
         if not self.use_db:
             return {}
 
+        games, players = Tables('games', 'players')
         logging.info(f"Loading game {chat_id} from DB")
-        self._cur.execute(f"SELECT * FROM games "
-                          f"FULL OUTER JOIN players first ON first.id=games.player1 "
-                          f"FULL OUTER JOIN players second ON second.id=games.player2 "
-                          f"WHERE games.chat_id={chat_id};")
-
+        load_game_query = PostgreSQLQuery.from_(games) \
+            .select(games.player1,
+                    games.player2,
+                    games.size_x,
+                    games.size_y,
+                    games.state,
+                    games.turn_color,
+                    games.turn_player,
+                    games.last_stone,
+                    games.last_capt_stone,
+                    games.player_passed) \
+            .where(games.chat_id == chat_id)
+        self._cur.execute(load_game_query.get_sql())
         rows = self._cur.fetchall()
         if not rows:
             logging.info(f"Game {chat_id} not fround in DB")
@@ -104,17 +124,27 @@ class Postgres:
         row = rows[0]
 
         game_state = {
-            'player_ids': (row[1], row[2]),
-            'size_x': row[3],
-            'size_y': row[4],
-            'board': row[5],
-            'turn_color': row[6],
-            'turn_player': row[7],
-            'last_stone': row[8],
-            'last_capt_stone': row[9],
-            'player_passed': row[10],
-            'player1_name': row[11],
-            'player2_name': row[12] if len(row) == 13 else row[11]
+            'player_ids': (row[0], row[1]),
+            'size_x': row[2],
+            'size_y': row[3],
+            'board': row[4],
+            'turn_color': row[5],
+            'turn_player': row[6],
+            'last_stone': row[7],
+            'last_capt_stone': row[8],
+            'player_passed': row[9]
         }
+
+        get_player1_query = PostgreSQLQuery.from_(players) \
+            .select(players.name) \
+            .where(players.id == row[0])
+        self._cur.execute(get_player1_query.get_sql())
+        game_state['player1_name'] = self._cur.fetchall()[0][0]
+
+        get_player2_query = PostgreSQLQuery.from_(players) \
+            .select(players.name) \
+            .where(players.id == row[1])
+        self._cur.execute(get_player2_query.get_sql())
+        game_state['player2_name'] = self._cur.fetchall()[0][0]
 
         return game_state

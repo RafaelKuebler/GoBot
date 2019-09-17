@@ -1,7 +1,5 @@
 [run]
 omit =
-    start.py
-    */__init.py
     */settings.py
 
 [html]

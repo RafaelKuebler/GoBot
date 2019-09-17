@@ -152,8 +152,9 @@ class GameHandler:
             color = board[coord]
             game.place_stone(x, y, color)
 
-        game.last_stone_placed = tuple(int(val) for val in game_state['last_stone'].split(','))
-        if game_state['last_capt_stone'] != "":
+        if game_state['last_stone']:
+            game.last_stone_placed = tuple(int(val) for val in game_state['last_stone'].split(','))
+        if game_state['last_capt_stone']:
             game.last_captured_single_stone = tuple(int(val) for val in game_state['last_capt_stone'].split(','))
 
         return game
