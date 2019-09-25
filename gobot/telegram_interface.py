@@ -29,16 +29,21 @@ class TelegramInterface:
         self.send_message(bot, chat_id, settings.greeting)
         self.send_message(bot, chat_id, settings.commands)
 
-    def _new_game(self, bot: Bot, update: Update) -> None:
+    def _new_game(self, bot: Bot, update: Update, args: List[str]) -> None:
         chat_id: int = update.message.chat_id
         user_id: int = update.message.from_user.id
         user_name: str = update.message.from_user.name.replace('\'', '')
-        logging.info(f"Chat {chat_id}, user {user_name} called /new")
+        board_size = 9
+        if args:
+            board_size = args[0]
+        logging.info(f"Chat {chat_id}, user {user_name} called /new {board_size}")
 
-        self.game_handler.new_game(chat_id, user_id)
-        self.game_handler.join(chat_id, user_id, user_name)
-
-        self.send_message(bot, chat_id, settings.new_game_text)
+        try:
+            self.game_handler.new_game(chat_id, user_id, board_size)
+            self.game_handler.join(chat_id, user_id, user_name)
+            self.send_message(bot, chat_id, settings.new_game_text)
+        except GoGameException as exception:
+            self.send_message(bot, chat_id, str(exception))
 
     def _join(self, bot: Bot, update: Update) -> None:
         chat_id: int = update.message.chat_id
@@ -46,12 +51,14 @@ class TelegramInterface:
         user_name: str = update.message.from_user.name.replace('\'', '')
         logging.info(f"Chat {chat_id}, user {user_name} called /join")
 
-        self.game_handler.join(chat_id, user_id, user_name)
-
-        message: str = f"*{settings.start_game_text}*"
-        self.send_message(bot, chat_id, message)
-        self.show_board(bot, update)
-        self.show_turn(bot, chat_id)
+        try:
+            self.game_handler.join(chat_id, user_id, user_name)
+            message: str = f"*{settings.start_game_text}*"
+            self.send_message(bot, chat_id, message)
+            self.show_board(bot, update)
+            self.show_turn(bot, chat_id)
+        except GoGameException as exception:
+            self.send_message(bot, chat_id, str(exception))
 
     def _place(self, bot: Bot, update: Update, args: List[str]) -> None:
         chat_id: int = update.message.chat_id
@@ -135,7 +142,7 @@ class TelegramInterface:
 
         message_handlers = [
             CommandHandler(['start', 's'], self._start),
-            CommandHandler(['new', 'n'], self._new_game),
+            CommandHandler(['new', 'n'], self._new_game, pass_args=True),
             CommandHandler(['join', 'j'], self._join),
             CommandHandler(['place', 'p'], self._place, pass_args=True),
             CommandHandler('pass', self._pass_turn),

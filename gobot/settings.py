@@ -59,6 +59,7 @@ error_inexistent_game = "Please start a game with /new first!"
 error_incorrect_turn = "It is not your turn!"
 error_not_enough_players = "Another player needs to join the game with /join!"
 error_already_enough_players = "The game already has 2 players!"
+error_invalid_board_size = "The board size has to be 9, 13 or 19!"
 error_permissions = "You are not part of a current game and therefore not allowed to perform this action!"
 
 logger_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'

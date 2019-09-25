@@ -4,7 +4,7 @@ from typing import List, Dict, Optional
 from .go.go import GoGame
 from .go.goscreenshot import GoScreenShot
 from .exceptions import *
-from .postgres_interface import Postgres
+from .postgres_interface import Postgres, GameState
 from . import settings
 
 __author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
@@ -64,11 +64,12 @@ class GameHandler:
         self.players: Dict[int, str] = {}
         self.DB = Postgres()
 
-    def new_game(self, chat_id: int, player_id: int) -> None:
+    def new_game(self, chat_id: int, player_id: int, board_size: str = '9') -> None:
         if chat_id in self.games:
             game = self.games[chat_id]
             self._check_player_permissions(player_id, game.player_ids)
-        self.games[chat_id] = Game(9, 9)
+        self._check_board_size(board_size)
+        self.games[chat_id] = Game(int(board_size), int(board_size))
         self.DB.delete_game(chat_id)
 
     def join(self, chat_id: int, player_id: int, player_name: str) -> None:
@@ -133,29 +134,29 @@ class GameHandler:
         if chat_id in self.games:
             return self.games[chat_id]
 
-        game_state = self.DB.load_game(chat_id)
-        if not game_state:
+        game_state: Optional[GameState] = self.DB.load_game(chat_id)
+        if game_state is None:
             raise InexistentGameException(settings.error_inexistent_game)
 
-        game = Game(game_state['size_x'], game_state['size_y'])
+        game = Game(game_state.size_x, game_state.size_y)
         self.games[chat_id] = game
-        game.player_ids = game_state['player_ids']
-        self.players[game.player_ids[0]] = game_state['player1_name']
-        self.players[game.player_ids[1]] = game_state['player2_name']
-        game.cur_player_color = game_state['turn_color']
-        game.cur_player_id = game_state['turn_player']
-        game.player_passed = [val == "True" for val in game_state['player_passed'].split(',')]
+        game.player_ids = game_state.player_ids
+        self.players[game.player_ids[0]] = game_state.player1_name
+        self.players[game.player_ids[1]] = game_state.player2_name
+        game.cur_player_color = game_state.turn_color
+        game.cur_player_id = game_state.turn_player
+        game.player_passed = [val == "True" for val in game_state.player_passed.split(',')]
 
-        board = game_state['board']
+        board = game_state.board
         for coord in board:
             x, y = [int(val) for val in coord.split(',')]
             color = board[coord]
             game.place_stone(x, y, color)
 
-        if game_state['last_stone']:
-            game.last_stone_placed = tuple(int(val) for val in game_state['last_stone'].split(','))
-        if game_state['last_capt_stone']:
-            game.last_captured_single_stone = tuple(int(val) for val in game_state['last_capt_stone'].split(','))
+        if game_state.last_stone:
+            game.last_stone_placed = tuple(int(val) for val in game_state.last_stone.split(','))
+        if game_state.last_capt_stone:
+            game.last_captured_single_stone = tuple(int(val) for val in game_state.last_capt_stone.split(','))
 
         return game
 
@@ -180,3 +181,8 @@ class GameHandler:
     def _check_player_permissions(player: int, players: List[int]) -> None:
         if player not in players:
             raise NoPermissionsException(settings.error_permissions)
+
+    @staticmethod
+    def _check_board_size(board_size: str) -> None:
+        if not board_size.isdigit() or int(board_size) not in [9, 13, 19]:
+            raise InvalidBoardSizeException(settings.error_invalid_board_size)

@@ -24,8 +24,13 @@ class GoScreenShot:
         }
 
     def _load_img(self) -> None:
-        self.BACKGROUND: str = settings.board_path
-        self.img: Image = Image.open(self.BACKGROUND)
+        board_map = {
+            '9': settings.board_9_path,
+            '13': settings.board_13_path,
+            '19': settings.board_19_path
+        }
+        self.background_image: str = board_map[str(self.board_size.x)]
+        self.img: Image = Image.open(self.background_image)
         self.draw: ImageDraw = ImageDraw.Draw(self.img)
 
         self.background: Vec2 = Vec2(*self.img.size)

@@ -22,3 +22,8 @@ class UnexpectedNumberOfPlayersException(GoGameException):
 class NoPermissionsException(GoGameException):
     def __init__(self, message):
         super(NoPermissionsException, self).__init__(message)
+
+
+class InvalidBoardSizeException(GoGameException):
+    def __init__(self, message):
+        super(InvalidBoardSizeException, self).__init__(message)
