@@ -33,7 +33,7 @@ class TelegramInterface:
         chat_id: int = update.message.chat_id
         user_id: int = update.message.from_user.id
         user_name: str = update.message.from_user.name.replace('\'', '')
-        board_size = 9
+        board_size = '9'
         if args:
             board_size = args[0]
         logging.info(f"Chat {chat_id}, user {user_name} called /new {board_size}")
