@@ -32,6 +32,7 @@ class Postgres:
             logging.info("Not using DB")
             return
 
+        # TODO: make db connection more flexible (no need for code change for local testing)
         self._conn = psycopg2.connect(os.environ['DATABASE_URL'], sslmode='require')
         logging.info("Established connection to DB")
         self._cur = self._conn.cursor()

@@ -1,32 +1,36 @@
 from tkinter import *
 from PIL import Image, ImageTk
 
+import gobot.go.settings as settings
+
 from gobot.go.go import GoGame
 from gobot.go.goscreenshot import GoScreenShot
+from gobot.go.exceptions import GoGameException
 
 __author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
 __version__ = "0.1"
 
+# TODO: Gui does only work with 9x9
 
 root = Tk()
-w = Canvas(root, width=500, height=500)
-w.pack()
+window = Canvas(root, width=500, height=500)
+window.pack()
 
-original = Image.open('images/board.jpg')
+original = Image.open(settings.board_9_path)
 
-game = GoGame()
+game = GoGame(9, 9)
 screenshot = GoScreenShot(game.size_x, game.size_y)
 
 img = screenshot.take_screenshot(game.board, None)
 img = img.resize((500, 500))
 img = ImageTk.PhotoImage(img)
-photo = w.create_image(0, 0, image=img, anchor="nw")
+photo = window.create_image(0, 0, image=img, anchor="nw")
 
 cell_width = 47
 cols = 9
 
 
-def coords(pixel_x, pixel_y):
+def _coords(pixel_x, pixel_y):
     x = int((pixel_x-63+cell_width/2)/374 * (cols-1))
     if not 0 <= x < cols:
         return None
@@ -36,31 +40,37 @@ def coords(pixel_x, pixel_y):
     return f"{chr(x + ord('a'))}{y+1}"
 
 
-def replace_image():
-    global w, photo, img
+def _replace_image():
+    global window, photo, img
     img = screenshot.take_screenshot(game.board, game.last_stone_placed)
     img = img.resize((500, 500))
     img = ImageTk.PhotoImage(img)
-    w.itemconfig(photo, image=img)
+    window.itemconfig(photo, image=img)
 
 
-def left_click(event):
+def _left_click(event):
     x = event.x
     y = event.y
-    coord = coords(x, y)
-    game.place_stone_str_coord(coord, "white")
-    replace_image()
+    coord = _coords(x, y)
+    try:
+        game.place_stone_str_coord(coord, "white")
+    except GoGameException as exception:
+        print(exception)
+    _replace_image()
 
 
-def right_click(event):
+def _right_click(event):
     x = event.x
     y = event.y
-    coord = coords(x, y)
-    game.place_stone_str_coord(coord, "black")
-    replace_image()
+    coord = _coords(x, y)
+    try:
+        game.place_stone_str_coord(coord, "black")
+    except GoGameException as exception:
+        print(exception)
+    _replace_image()
 
 
-w.bind("<Button-1>", left_click)
-w.bind("<Button-3>", right_click)
+window.bind("<Button-1>", _left_click)
+window.bind("<Button-3>", _right_click)
 
 root.mainloop()
