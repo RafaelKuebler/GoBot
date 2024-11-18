@@ -1,8 +1,5 @@
 from gobot.go.vec2 import Vec2
 
-__author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
-__version__ = "0.1"
-
 
 class TestVec2:
     def test_point(self):

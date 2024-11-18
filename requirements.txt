@@ -1,7 +1,6 @@
-Pillow==6.2.0
-pytest==4.0.0
-pytest-cov==2.6.0
-pytest-mock==1.10.3
-python-telegram-bot==11.1.0
-psycopg2-binary==2.8.3
-PyPika==0.35.5
+Pillow==11.0.0
+python-telegram-bot==21.7
+psycopg2-binary==2.9.10
+pypika==0.48.9
+pydantic-settings==2.6.1
+boto3==1.35.63

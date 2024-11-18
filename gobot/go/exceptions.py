@@ -1,8 +1,3 @@
-
-__author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
-__version__ = "0.1"
-
-
 class GoGameException(Exception):
     def __init__(self, message):
         super(GoGameException, self).__init__(message)

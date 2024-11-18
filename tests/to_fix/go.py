@@ -1,9 +1,16 @@
 import pytest
-from gobot.go.go import *
-from gobot.go.exceptions import *
 
-__author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
-__version__ = "0.1"
+from gobot.go.exceptions import (
+    CoordOccupiedException,
+    InvalidBoardSizeException,
+    InvalidCoordinateException,
+    KoException,
+    SelfCaptureException,
+)
+from gobot.go.go import GoGame, GridPosition
+
+# from gobot.go.exceptions import *
+# from gobot.go.go import *
 
 
 class TestGridPosition:
@@ -50,7 +57,7 @@ class TestGoGame:
 
     def test_place_stone_invalid_coord(self):
         game = GoGame(9, 9)
-        coords = ['x9', 'y22', 'o2', 'a30', 'test']
+        coords = ["x9", "y22", "o2", "a30", "test"]
         for coord in coords:
             with pytest.raises(InvalidCoordinateException):
                 game.place_stone_str_coord(coord, "black")

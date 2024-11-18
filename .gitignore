@@ -1,12 +1,24 @@
-env.txt
+.env
 
 __pycache__/
 .idea/
 
-venv/
+.venv/
 coverage_html_report/
 .coverage
 test/htmlcov/
 logs/
 
 *.url
+
+*.swp
+package-lock.json
+*.egg-info
+
+.pytest_cache
+.ruff_cache
+
+# CDK asset staging directory
+.cdk.staging
+cdk.out
+infrastructure/outputs.json

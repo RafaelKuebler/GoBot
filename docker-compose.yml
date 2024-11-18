@@ -1,0 +1,42 @@
+services:
+  app:
+    build: .
+    container_name: gobot
+    environment:
+      TOKEN: ${TOKEN}
+      DATABASE_URL: postgresql://gobot:gobot@db:5432
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - gobot-network
+
+  db:
+    image: "postgres:latest"
+    container_name: gobot-db
+    environment:
+      POSTGRES_PASSWORD: "gobot"
+      PGUSER: "gobot"
+    volumes:
+        - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "postgres"]
+      start_period: 3s
+      start_interval: 1s
+    networks:
+      - gobot-network
+
+  dynamodb:
+    image: "amazon/dynamodb-local:latest"
+    container_name: gobot-dynamodb
+    ports:
+      - "8000:8000"
+    networks:
+      - gobot-network
+
+
+networks:
+  gobot-network:
+    driver: bridge

@@ -1,10 +1,9 @@
 import os
-import pytest
-from gobot.gamehandler import Game, GameHandler
-from gobot.exceptions import *
 
-__author__ = "Rafael Kübler da Silva <rafael_kuebler@yahoo.es>"
-__version__ = "0.1"
+import pytest
+
+from gobot.telegram.exceptions import IncorrectTurnException, InexistentGameException, NoPermissionsException, UnexpectedNumberOfPlayersException
+from gobot.telegram.gamehandler import Game, GameHandler
 
 os.environ["DB"] = "0"
 
@@ -50,7 +49,7 @@ class TestGame:
     def test_place_stone(self, mocker, global_vars):
         game = self.setup_game()
         coord = "a1"
-        mock_place_stone = mocker.patch('gobot.go.go.GoGame.place_stone_str_coord')
+        mock_place_stone = mocker.patch("gobot.go.go.GoGame.place_stone_str_coord")
 
         game.place_stone_str_coord(coord)
         mock_place_stone.assert_called_with(coord, "black")
@@ -76,7 +75,7 @@ class TestGame:
 
     def test_take_screenshot(self, mocker, global_vars):
         game = self.setup_game()
-        mock_screenshot = mocker.patch('gobot.go.goscreenshot.GoScreenShot.take_screenshot')
+        mock_screenshot = mocker.patch("gobot.go.goscreenshot.GoScreenShot.take_screenshot")
 
         game.take_screenshot()
         mock_screenshot.assert_called_with(game.board, None)
@@ -126,7 +125,7 @@ class TestGameHandler:
 
     def test_join_1_player(self, mocker, game_handler, global_vars):
         self.setup_game(game_handler, num_players=0)
-        mock_add_player = mocker.patch('gobot.gamehandler.Game.add_player')
+        mock_add_player = mocker.patch("gobot.gamehandler.Game.add_player")
 
         game_handler.join(self.chat_id, self.player1_id, self.player1_name)
         mock_add_player.assert_called_with(self.player1_id)
@@ -159,7 +158,7 @@ class TestGameHandler:
 
     def test_place_stone(self, mocker, game_handler, global_vars):
         self.setup_game(game_handler)
-        mock_place_stone = mocker.patch('gobot.gamehandler.Game.place_stone_str_coord')
+        mock_place_stone = mocker.patch("gobot.gamehandler.Game.place_stone_str_coord")
 
         game_handler.place_stone(self.chat_id, self.player2_id, self.coord)
         mock_place_stone.assert_called_with(self.coord)
@@ -181,7 +180,7 @@ class TestGameHandler:
 
     def test_pass_turn(self, mocker, game_handler, global_vars):
         self.setup_game(game_handler)
-        mock_pass_turn = mocker.patch('gobot.gamehandler.Game.pass_turn')
+        mock_pass_turn = mocker.patch("gobot.gamehandler.Game.pass_turn")
 
         game_handler.pass_turn(self.chat_id, self.player2_id)
         mock_pass_turn.assert_called_once()
@@ -227,16 +226,16 @@ class TestGameHandler:
 
     def test_cur_player_color_player1(self, game_handler, global_vars):
         self.setup_game(game_handler)
-        assert game_handler.cur_player_color(self.chat_id) == 'black'
+        assert game_handler.cur_player_color(self.chat_id) == "black"
 
     def test_cur_player_color_player2(self, game_handler, global_vars):
         self.setup_game(game_handler)
         game_handler.pass_turn(self.chat_id, self.player2_id)
-        assert game_handler.cur_player_color(self.chat_id) == 'white'
+        assert game_handler.cur_player_color(self.chat_id) == "white"
 
     def test_create_image(self, mocker, game_handler, global_vars):
         self.setup_game(game_handler)
-        mock_screenshot = mocker.patch('gobot.gamehandler.Game.take_screenshot')
+        mock_screenshot = mocker.patch("gobot.gamehandler.Game.take_screenshot")
 
         game_handler.create_image(self.chat_id)
         mock_screenshot.assert_called_once()

@@ -1,0 +1,37 @@
+# Configuration file for `pre-commit` (https://pre-commit.com/)
+
+# To use pre-commit, first install with `pip install pre-commit`
+# To install and activate the hooks, use `pre-commit install`
+# By default, pre-commit only runs on modified files
+# To run on all files, use `pre-commit run --all-files`
+
+# what hooks to install
+default_install_hook_types: [pre-commit, commit-msg]
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-added-large-files # prevents giant files from being committed
+      - id: check-ast #simply checks whether the files parse as valid python
+      - id: fix-byte-order-marker # fixes files which have a utf-8 byte-order marker
+      - id: check-case-conflict # checks for files that would conflict in case-insensitive filesystems
+      - id: check-docstring-first # checks a common error of defining a docstring after code
+      - id: end-of-file-fixer # ensures that a file is either empty, or ends with one newline
+      - id: check-merge-conflict # checks for files that contain merge conflict strings
+      - id: debug-statements # checks for debugger imports and py37+ `breakpoint()` calls in python source
+      - id: trailing-whitespace # trims trailing whitespace
+      - id: check-json # checks json files for parseable syntax
+      - id: check-yaml # checks yaml files for parseable syntax
+      - id: check-toml # checks toml files for parseable syntax
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.7.3
+    hooks:
+      - id: ruff # code linting
+        args: [--fix] # attempt to fix linting errors
+      - id: ruff-format # code formatting
+
+  - repo: https://github.com/RobertCraigie/pyright-python
+    rev: v1.1.389
+    hooks:
+      - id: pyright # type checking
