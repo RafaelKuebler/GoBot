@@ -16,14 +16,13 @@ class Settings(BaseSettings):
     )
 
     TOKEN: str
-    USE_DB: bool = True
 
     DB_TYPE: DBs = DBs.DYNAMODB
-    USE_LOCAL_DB: bool = False
 
     DATABASE_URL: str | None = None
-    PORT: int = 8443
+    USE_DB: bool = True
 
+    USE_LOCAL_DB: bool = False
     DYNAMODB_ENDPOINT: str | None = None
 
 

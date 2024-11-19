@@ -24,9 +24,9 @@ The bot is permanently running on Heroku.
 * [Python Telegram Bot](https://github.com/python-telegram-bot/python-telegram-bot) - Python wrapper for the Telegram Bot API
 * [Pillow](https://python-pillow.org/) - Fork of PIL, the Python Imaging Library
 
-## Authors
+## Development
 
-* **Rafael Kübler da Silva**
+See the dev docs under [/docs/dev.md](/docs/dev.md)
 
 ## License
 
