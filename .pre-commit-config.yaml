@@ -25,13 +25,13 @@ repos:
       - id: check-toml # checks toml files for parseable syntax
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.7.3
+    rev: v0.12.3
     hooks:
       - id: ruff # code linting
         args: [--fix] # attempt to fix linting errors
       - id: ruff-format # code formatting
 
   - repo: https://github.com/RobertCraigie/pyright-python
-    rev: v1.1.389
+    rev: v1.1.403
     hooks:
       - id: pyright # type checking

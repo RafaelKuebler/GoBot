@@ -44,7 +44,7 @@ deploy: # Deploy bot to AWS and set up webhook
 	. ../.env && \
 	echo "Setting Telegram bot webhook to API gateway URL: $${GATEWAY_URL}..." && \
 	curl -X POST https://api.telegram.org/bot$${TOKEN}/setWebhook?url=$${GATEWAY_URL} && \
-	echo "Deployment SUCCESS"
+	echo "\nDeployment SUCCESS"
 
 .PHONY: pre-commit
 pre-commit: # Run pre-commit hooks on all files

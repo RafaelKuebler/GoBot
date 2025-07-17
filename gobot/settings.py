@@ -19,9 +19,6 @@ class Settings(BaseSettings):
 
     DB_TYPE: DBs = DBs.DYNAMODB
 
-    DATABASE_URL: str | None = None
-    USE_DB: bool = True
-
     USE_LOCAL_DB: bool = False
     DYNAMODB_ENDPOINT: str | None = None
 
@@ -32,6 +29,6 @@ _settings: Settings | None = None
 def get_settings() -> Settings:
     global _settings
     if _settings is None:
-        logger.info("Loaded settings from env vars and .env")
+        logger.info("Loading settings from env-vars and .env")
         _settings = Settings()  # type: ignore
     return _settings

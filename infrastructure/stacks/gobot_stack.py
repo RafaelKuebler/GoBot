@@ -23,9 +23,9 @@ class GoBotStack(Stack):
             code=_lambda.DockerImageCode.from_image_asset(directory=".."),
             environment={
                 "TOKEN": os.environ["TOKEN"],
-                # "DATABASE_URL": "postgresql://gobot:gobot@localhost:5432",
             },
             log_retention=logs.RetentionDays.ONE_WEEK,
+            architecture=_lambda.Architecture.ARM_64,
         )
 
         dynamodb_table = dynamodb.Table(

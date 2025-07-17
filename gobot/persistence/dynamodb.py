@@ -97,8 +97,22 @@ class DynamoDBAdapter(PersistencePort):
                 endpoint_url=settings_.DYNAMODB_ENDPOINT,
                 region_name="eu-west-1",
             )
+            self._ensure_table_exists()
         else:
             self.client = boto3.client("dynamodb")
+
+    def _ensure_table_exists(self):
+        existing_tables = self.client.list_tables()["TableNames"]
+        if GAMES_TABLE_NAME not in existing_tables:
+            self.client.create_table(
+                TableName=GAMES_TABLE_NAME,
+                AttributeDefinitions=[{"AttributeName": "chat_id", "AttributeType": "N"}],
+                KeySchema=[{"AttributeName": "chat_id", "KeyType": "HASH"}],
+                ProvisionedThroughput={"ReadCapacityUnits": 1, "WriteCapacityUnits": 1},
+            )
+            # Wait for the table to be active
+            waiter = self.client.get_waiter("table_exists")
+            waiter.wait(TableName=GAMES_TABLE_NAME)
 
     @override
     def new_game(self, game: TelegramGoGame) -> None:

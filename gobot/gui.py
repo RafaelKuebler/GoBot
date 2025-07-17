@@ -35,7 +35,7 @@ def get_coords(pixel_x, pixel_y):
     y = int((pixel_y - 63 + cell_width / 2) / 374 * (cols - 1))
     if not 0 <= y < cols:
         return None
-    return f"{chr(x + ord('a'))}{y+1}"
+    return f"{chr(x + ord('a'))}{y + 1}"
 
 
 def replace_image():
@@ -60,10 +60,12 @@ def handle_click(event, color: str):
     x = event.x
     y = event.y
     coord = get_coords(x, y)
+    if coord is None:
+        return
     try:
         game.place_stone_str_coord(coord, color)
     except GoGameException as exception:
-        showerror("Error", exception)
+        showerror("Error", str(exception))
         print(exception)
     replace_image()
 

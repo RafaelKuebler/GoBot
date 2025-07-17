@@ -36,7 +36,7 @@ class GoScreenShot:
                     continue
                 mark = (x, y) == last_stone
                 draw_border = board[x][y].color == "white"
-                self._draw_stone(x, y, board[x][y].color, mark, draw_border=draw_border)
+                self._draw_stone(x, y, board[x][y].color, mark, draw_border=draw_border)  # type:ignore
 
         return self.img
 

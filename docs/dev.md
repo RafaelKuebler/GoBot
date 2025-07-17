@@ -42,8 +42,6 @@ For this, it offers two entry points which can be inspected in the [`main.py`](/
 To make the serverless function case possible, the application maintains no internal state or cache of the games and persists all data to a database.
 The DB of choice is [AWS DynamoDB](https://aws.amazon.com/dynamodb/), a serverless, No-SQL database.
 
-*Warning: While a PostgreSQL implementation is still in the source code, it is deprecated and probably does not work.*
-
 Therefore, when running locally or in the cloud, a running DynamoDB s required.
 When running locally via `make run`, a local Docker container is automatically started that simulates the DynamoDB.
 
