@@ -1,6 +1,6 @@
 import os
 
-from aws_cdk import CfnOutput, RemovalPolicy, Stack
+from aws_cdk import CfnOutput, Duration, RemovalPolicy, Stack
 from aws_cdk import aws_apigateway as apigateway
 from aws_cdk import aws_dynamodb as dynamodb
 from aws_cdk import aws_iam as iam
@@ -26,6 +26,7 @@ class GoBotStack(Stack):
             },
             log_retention=logs.RetentionDays.ONE_WEEK,
             architecture=_lambda.Architecture.ARM_64,
+            timeout=Duration.seconds(15),
         )
 
         dynamodb_table = dynamodb.Table(
