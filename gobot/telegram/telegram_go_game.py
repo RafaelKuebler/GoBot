@@ -1,68 +1,58 @@
-from io import BytesIO
-from typing import Literal, override
+import pprint
+from typing import override
 
 from gobot.go.go import GoGame
-from gobot.go.goscreenshot import GoScreenShot
+from gobot.telegram.player import Player
+from gobot.telegram.player_color import PlayerColor
 
 
 class TelegramGoGame(GoGame):
     def __init__(self, chat_id: int, board_x: int, board_y: int) -> None:
         super().__init__(board_x, board_y)
         self.chat_id = chat_id
-        self.player_ids: list[int | None] = [None, None]
-        self.player_names: list[str | None] = []
-        self.cur_player_id: int | None = None
-        self.cur_player_color: Literal["white", "black"] = "black"
-        self.player_passed: list[bool] = [False, False]
-        self.screenshot: GoScreenShot = GoScreenShot(board_x, board_y)
+        self.players: list[Player] = []
+        self.current_player_index: int = 0
 
     @property
-    def both_players_passed(self) -> bool:
-        if not self.player_passed:
-            return False
-        return all(self.player_passed)
+    def is_game_over(self) -> bool:
+        """The game is over when both players have passed"""
+        return all(player.did_pass for player in self.players)
 
     @property
-    def cur_player_name(self) -> str | None:
-        if self.cur_player_id is None:
+    def current_player(self) -> Player | None:
+        if not self.players:
             return None
-        return self.player_names[self.player_ids.index(self.cur_player_id)]
+        return self.players[self.current_player_index]
 
-    def add_player(self, player_id: int) -> None:
-        self.player_ids.append(player_id)
-        self.cur_player_id = player_id
-        self.player_passed.append(False)
+    def add_player(self, player_id: int, player_name: str) -> None:
+        is_first_player = not self.players
+        color = PlayerColor.WHITE if is_first_player else PlayerColor.BLACK
+        self.players.append(Player(player_id, player_name, color))
+        self.current_player_index = len(self.players) - 1
 
     @override
     def place_stone_str_coord(self, coord: str, color: str | None = None) -> None:
-        super().place_stone_str_coord(coord, self.cur_player_color)
-        del self.player_passed[0]
-        self.player_passed.append(False)
+        assert self.current_player
+        super().place_stone_str_coord(coord, self.current_player.color)
+        self.current_player.did_pass = False
         self._change_turn()
 
     def pass_turn(self) -> None:
-        del self.player_passed[0]
-        self.player_passed.append(True)
+        assert self.current_player
+        self.current_player.did_pass = True
         self._change_turn()
 
     def _change_turn(self) -> None:
-        if self.cur_player_id == self.player_ids[0]:
-            self.cur_player_id = self.player_ids[1]
-        else:
-            self.cur_player_id = self.player_ids[0]
-
-        if self.cur_player_color == "white":
-            self.cur_player_color = "black"
-        else:
-            self.cur_player_color = "white"
+        self.current_player_index = (self.current_player_index + 1) % 2
 
     def has_enough_players(self) -> bool:
-        return len(self.player_ids) == 2
+        return len(self.players) == 2
 
-    def take_screenshot(self) -> BytesIO:
-        image = self.screenshot.take_screenshot(self.board, self.last_stone_placed)
-
-        bio = BytesIO()
-        image.save(bio, "JPEG")
-        bio.seek(0)
-        return bio
+    def __str__(self):
+        return pprint.pformat(
+            {
+                "Chat ID": self.chat_id,
+                "Players": self.players,
+                "Curr player": self.current_player,
+            }
+        )

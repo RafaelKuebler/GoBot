@@ -6,7 +6,7 @@ from PIL import Image, ImageTk
 import gobot.go.strings as strings
 from gobot.go.exceptions import GoGameException
 from gobot.go.go import GoGame
-from gobot.go.goscreenshot import GoScreenShot
+from gobot.go.goscreenshot import take_screenshot
 
 # TODO: GUI does only work with 9x9
 
@@ -17,9 +17,8 @@ window.pack()
 original = Image.open(strings.board_9_path)
 
 game = GoGame(9, 9)
-screenshot = GoScreenShot(game.size_x, game.size_y)
 
-img = screenshot.take_screenshot(game.board, None)
+img = take_screenshot(game)
 img = img.resize((500, 500))
 img = ImageTk.PhotoImage(img)
 photo = window.create_image(0, 0, image=img, anchor="nw")
@@ -40,7 +39,7 @@ def get_coords(pixel_x, pixel_y):
 
 def replace_image():
     global window, photo, img
-    img = screenshot.take_screenshot(game.board, game.last_stone_placed)
+    img = take_screenshot(game)
     img = img.resize((500, 500))
     img = ImageTk.PhotoImage(img)
     window.itemconfig(photo, image=img)

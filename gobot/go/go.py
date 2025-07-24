@@ -10,7 +10,7 @@ class GridPosition:
         self.color: str | None = None
 
     @property
-    def free(self) -> bool:
+    def is_free(self) -> bool:
         return self.color is None
 
     def clear(self) -> None:
@@ -37,6 +37,7 @@ class GoGame:
             self.board.append(column)
 
     def place_stone_str_coord(self, coord: str, color: str) -> None:
+        coord = coord.lower()
         self._check_stone_str_coord(coord)
         x, y = self._transform_coord(coord)
         self.place_stone(x, y, color)
@@ -76,7 +77,7 @@ class GoGame:
     def _group_liberties(self, group: set[tuple[int, int]]) -> set[tuple[int, int]]:
         group_liberties: set[tuple[int, int]] = set()
         for stone in group:
-            stone_liberties = {(x, y) for x, y in self._neighbors_of(*stone) if self.board[x][y].free}
+            stone_liberties = {(x, y) for x, y in self._neighbors_of(*stone) if self.board[x][y].is_free}
             group_liberties = group_liberties.union(stone_liberties)
         return group_liberties
 
@@ -124,7 +125,7 @@ class GoGame:
             raise InvalidCoordinateException(strings.error_invalid_coords)
 
     def _check_pos_taken(self, x: int, y: int) -> None:
-        if not self.board[x][y].free:
+        if not self.board[x][y].is_free:
             raise CoordOccupiedException(strings.error_coord_occupied)
 
     def _check_ko(self, opponent_groups: list[set[tuple[int, int]]]) -> None:

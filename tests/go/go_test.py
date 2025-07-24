@@ -13,12 +13,12 @@ from gobot.go.go import GoGame, GridPosition
 class TestGridPosition:
     def test_free(self):
         grid_pos = GridPosition()
-        assert grid_pos.free
+        assert grid_pos.is_free
 
     def test_occupied(self):
         grid_pos = GridPosition()
         grid_pos.color = "white"
-        assert not grid_pos.free
+        assert not grid_pos.is_free
 
 
 class TestGoGame:
@@ -36,7 +36,7 @@ class TestGoGame:
             assert game.last_stone_placed is None
             for row in game.board:
                 for grid_pos in row:
-                    assert grid_pos.free
+                    assert grid_pos.is_free
 
     def test_wrong_size(self):
         with pytest.raises(InvalidBoardSizeException):
@@ -47,7 +47,7 @@ class TestGoGame:
         coords = [(0, 0), (4, 1), (4, 4)]
         for x, y in coords:
             game.place_stone_str_coord(self.coord(x, y), "black")
-            assert not game.board[x][y].free
+            assert not game.board[x][y].is_free
             assert (x, y) in game.board[x][y].group
             assert len(game.board[x][y].group) == 1
             assert game.board[x][y].color == "black"
@@ -88,7 +88,7 @@ class TestGoGame:
         game.place_stone_str_coord(self.coord(5, 6), "black")
         game.place_stone_str_coord(self.coord(4, 5), "black")
         game.place_stone_str_coord(self.coord(6, 5), "black")
-        assert game.board[5][5].free
+        assert game.board[5][5].is_free
 
     def test_capture_group(self) -> None:
         game = GoGame(9, 9)
@@ -100,8 +100,8 @@ class TestGoGame:
         game.place_stone_str_coord(self.coord(4, 6), "black")
         game.place_stone_str_coord(self.coord(6, 5), "black")
         game.place_stone_str_coord(self.coord(6, 6), "black")
-        assert game.board[5][5].free
-        assert game.board[5][6].free
+        assert game.board[5][5].is_free
+        assert game.board[5][6].is_free
 
     def test_self_capture(self) -> None:
         game = GoGame(9, 9)
@@ -125,7 +125,7 @@ class TestGoGame:
         game.place_stone_str_coord(self.coord(5, 4), "black")
         game.place_stone_str_coord(self.coord(4, 5), "black")
         game.place_stone_str_coord(self.coord(6, 5), "black")
-        assert game.board[5][5].free
+        assert game.board[5][5].is_free
 
         with pytest.raises(KoException):
             game.place_stone_str_coord(self.coord(5, 5), "white")
@@ -137,7 +137,7 @@ class TestGoGame:
         game.place_stone_str_coord(self.coord(1, 1), "white")
         game.place_stone_str_coord(self.coord(0, 1), "black")
         game.place_stone_str_coord(self.coord(1, 0), "black")
-        assert game.board[0][0].free
+        assert game.board[0][0].is_free
 
         with pytest.raises(KoException):
             game.place_stone_str_coord(self.coord(0, 0), "white")

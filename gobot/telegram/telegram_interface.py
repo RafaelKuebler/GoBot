@@ -7,8 +7,9 @@ from telegram.ext import Application, ApplicationBuilder, CommandHandler, Contex
 
 from gobot import settings
 from gobot.go.exceptions import KoException
+from gobot.go.goscreenshot import take_in_memory_screenshot
 from gobot.telegram import proverbs
-from gobot.telegram.gamehandler import GameHandler, GameHandlerException, TelegramGoGame
+from gobot.telegram.gamehandler import GameHandler, TelegramGoGame
 
 logger = logging.getLogger(__name__)
 game_handler: GameHandler
@@ -17,7 +18,7 @@ game_handler: GameHandler
 def setup_app() -> Application:
     global game_handler
 
-    logger.info("Setting up telegram interface")
+    logger.info("Setting up Telegram interface")
     application = ApplicationBuilder().token(settings.get_settings().TOKEN).build()
 
     game_handler = GameHandler()
@@ -108,7 +109,7 @@ async def _new_game_command(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     try:
         game_handler.new_game(chat_id, user_id, user_name, board_size)
         await send_message(context.bot, chat_id, "<b>You created a new game!</b> Another player can join with the /join command.")
-    except GameHandlerException as e:
+    except Exception as e:
         await send_message(context.bot, chat_id, html.escape(str(e)))
 
 
@@ -127,7 +128,7 @@ async def _join_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         await send_message(context.bot, chat_id, "<b>Let the game begin!</b>")
         await _show_board_command(update, context, game)
         await _show_turn(context.bot, chat_id, game)
-    except GameHandlerException as e:
+    except Exception as e:
         await send_message(context.bot, chat_id, html.escape(str(e)))
 
 
@@ -142,7 +143,7 @@ async def _place_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     if not context.args:
         await send_message(context.bot, chat_id, "Please supply coordinates (example: <code>/place a1</code>)!")
         return
-    coords = html.escape(context.args[0])
+    coords = context.args[0]
     logger.info(f"Chat {chat_id}, user {user_name} called /place at {coords}")
 
     try:
@@ -152,7 +153,7 @@ async def _place_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     except KoException as e:
         await send_message(context.bot, chat_id, html.escape(str(e)))
         await send_message(context.bot, chat_id, "<i>If you don't like Ko don't Play Go.</i>")
-    except GameHandlerException as e:
+    except Exception as e:
         await send_message(context.bot, chat_id, html.escape(str(e)))
 
 
@@ -168,13 +169,13 @@ async def _pass_turn_command(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
     try:
         game = game_handler.pass_turn(chat_id, user_id)
-        if game.both_players_passed:
+        if game.is_game_over:
             await _game_over(context.bot, chat_id)
             return
         await send_message(context.bot, chat_id, f"Player {html.escape(user_name)} passed")
         await _show_board_command(update, context, game)
         await _show_turn(context.bot, chat_id, game)
-    except GameHandlerException as e:
+    except Exception as e:
         await send_message(context.bot, chat_id, html.escape(str(e)))
 
 
@@ -184,24 +185,33 @@ async def _game_over(bot: Bot, chat_id: int) -> None:
     await send_message(bot, chat_id, "The game is over. Well played!")
 
 
+# board_id: int = 0
+
+
 async def _show_board_command(update: Update, context: ContextTypes.DEFAULT_TYPE, game_: TelegramGoGame | None = None) -> None:
+    # global board_id
     assert update.effective_chat
 
     chat_id = update.effective_chat.id
     game = game_ or game_handler.get_game_with_chat_id(chat_id, raise_if_not_found=True)
 
     try:
-        image = game.take_screenshot()
+        image = take_in_memory_screenshot(game)
+        """
+        board_id += 1
+        with open(f"state_{board_id}.jpg", "wb") as f:
+            f.write(image.getvalue())
+        """
         await context.bot.send_photo(chat_id, photo=image)
-    except GameHandlerException as e:
+    except Exception as e:
         await send_message(context.bot, chat_id, str(e))
 
 
 async def _show_turn(bot: Bot, chat_id: int, game: TelegramGoGame) -> None:
-    if game.cur_player_name is None:
+    if game.current_player is None:
         return
-    cur_player_name = html.escape(game.cur_player_name)
-    cur_color = game.cur_player_color
+    cur_player_name = html.escape(game.current_player.name)
+    cur_color = game.current_player.color
     await send_message(bot, chat_id, f"It is {cur_player_name}'s ({cur_color}) turn")
 
 
