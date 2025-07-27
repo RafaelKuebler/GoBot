@@ -19,7 +19,8 @@ def lambda_handler(event, context):
     application = setup_app()
 
     logger.info("Running in lambda...")
-    return asyncio.get_event_loop().run_until_complete(async_handler(event, application))
+    return asyncio.run(async_handler(event, application))
+    # return asyncio.get_event_loop().run_until_complete(async_handler(event, application))
 
 
 async def async_handler(event, application: Application):
