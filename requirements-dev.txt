@@ -3,4 +3,4 @@ pytest-asyncio==0.24.0
 pytest-cov==6.0.0
 aws-cdk-lib==2.166.0
 constructs==10.4.2
-python-dotenv==1.0.1
+python-dotenv==1.1.1
