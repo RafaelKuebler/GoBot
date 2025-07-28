@@ -1,7 +1,7 @@
 # Tests
 pytest==8.4.1
 pytest-asyncio==1.1.0
-pytest-cov==6.0.0
+pytest-cov==6.2.1
 
 # AWS CDK
 aws-cdk-lib==2.166.0
