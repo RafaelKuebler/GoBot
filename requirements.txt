@@ -1,6 +1,4 @@
 Pillow==11.0.0
 python-telegram-bot==21.7
-psycopg2-binary==2.9.10
-pypika==0.48.9
 pydantic-settings==2.6.1
 boto3==1.35.63
