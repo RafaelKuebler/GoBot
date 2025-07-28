@@ -4,6 +4,6 @@ pytest-asyncio==1.1.0
 pytest-cov==6.0.0
 
 # AWS CDK
-aws-cdk-lib==2.166.0
+aws-cdk-lib==2.207.0
 constructs==10.4.2
 python-dotenv==1.1.1
