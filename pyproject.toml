@@ -4,17 +4,8 @@ line-length = 150
 [tool.ruff.lint]
 select = ["E", "F", "I"]
 
-[tool.coverage.run]
-omit = ["*/settings.py"]
-
 [tool.coverage.html]
 directory = "coverage_html_report"
-
-[tool.pytest]
-addopts = [
-  "--cov=gobot",
-  "--cov-report html",
-]
 
 [tool.pyright]
 venv = ".venv"
@@ -25,4 +16,8 @@ asyncio_default_fixture_loop_scope = "function"
 asyncio_mode = "auto"
 filterwarnings = [
   "ignore::DeprecationWarning:botocore.*",
+]
+addopts = [
+  "--cov=gobot",
+  "--cov-report=html",
 ]
