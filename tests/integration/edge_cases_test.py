@@ -1,9 +1,7 @@
 import json
 import time
-from unittest.mock import patch
 
 import pytest
-from telegram.ext import ExtBot
 
 import main
 
@@ -46,23 +44,12 @@ def build_event(
     }
 
 
-@pytest.fixture
-def mock_send_message():
-    with patch.object(ExtBot, "send_message", autospec=True) as mock_send_message:
-        yield mock_send_message
-
-
-@pytest.fixture
-def mock_send_photo():
-    with patch.object(ExtBot, "send_photo", autospec=True) as mock_send_photo:
-        yield mock_send_photo
-
-
-def initialize_game(mock_send_message, mock_send_photo):
+def initialize_game(mock_send_message, mock_send_photo, second_player: bool = True):
     event = build_event("/new")
     main.lambda_handler(event, None)
-    event = build_event("/join", user_id=SECOND_USER_ID, user_name=SECOND_USERNAME)
-    main.lambda_handler(event, None)
+    if second_player:
+        event = build_event("/join", user_id=SECOND_USER_ID, user_name=SECOND_USERNAME)
+        main.lambda_handler(event, None)
     mock_send_photo.reset_mock()
     mock_send_message.reset_mock()
 
@@ -247,7 +234,7 @@ def test_not_enough_players(mock_send_message, mock_send_photo):
 
 
 def test_wrong_turn(mock_send_message, mock_send_photo):
-    """Trying to move wout of turn returns the expected error message"""
+    """Trying to move out of turn returns the expected error message"""
     # Arrange
     initialize_game(mock_send_message, mock_send_photo)
     event_place = build_event("/place a1", user_id=FIRST_USER_ID, user_name=FIRST_USERNAME)
@@ -266,5 +253,73 @@ def test_wrong_turn(mock_send_message, mock_send_photo):
     assert found, "Expected 'It is not your turn!' error message not found in send_message calls"
 
 
-# TODO: user that is not part of the game attempts to start new game
-# TODO: user that is not part of the game attempts to place a stone
+@pytest.mark.parametrize(
+    "command",
+    [
+        ("/new"),
+        ("/place a1"),
+        ("/pass"),
+    ],
+)
+def test_unknown_player_attempts_command(mock_send_message, mock_send_photo, command: str):
+    """An unknown player tries to run commands on an existing game"""
+    # Arrange
+    initialize_game(mock_send_message, mock_send_photo)
+    event_new = build_event(command, user_id=333333, user_name="'Carl'")
+
+    # Act
+    response = main.lambda_handler(event_new, None)
+
+    # Assert
+    assert response == {"statusCode": 200, "body": "Success"}
+    found = any("You are not part of a current game" in call.kwargs.get("text", "") for call in mock_send_message.call_args_list)
+    if not found:
+        print("All send_message calls:")
+        for call in mock_send_message.call_args_list:
+            print(call.kwargs.get("text", ""))
+    assert found, "'You are not part of a current game' error message not found in send_message calls"
+
+
+def test_unknown_player_attempts_join_full_game(mock_send_message, mock_send_photo):
+    """An unknown player tries to join an existing full game"""
+    # Arrange
+    initialize_game(mock_send_message, mock_send_photo)
+    event_new = build_event("/join", user_id=333333, user_name="'Carl'")
+
+    # Act
+    response = main.lambda_handler(event_new, None)
+
+    # Assert
+    assert response == {"statusCode": 200, "body": "Success"}
+    found = any("The game already has 2 players!" in call.kwargs.get("text", "") for call in mock_send_message.call_args_list)
+    if not found:
+        print("All send_message calls:")
+        for call in mock_send_message.call_args_list:
+            print(call.kwargs.get("text", ""))
+    assert found, "'The game already has 2 players!' error message not found in send_message calls"
+
+
+@pytest.mark.parametrize(
+    "player_id, player_name",
+    [
+        (FIRST_USER_ID, FIRST_USERNAME),
+        (SECOND_USER_ID, SECOND_USERNAME),
+    ],
+)
+def test_place_but_no_second_player_joined(mock_send_message, mock_send_photo, player_id: int, player_name: str):
+    """The second player attempts to place a stone but has not joined yet"""
+    # Arrange
+    initialize_game(mock_send_message, mock_send_photo, second_player=False)
+    event_place = build_event("/place a1", user_id=player_id, user_name=player_name)
+
+    # Act
+    response = main.lambda_handler(event_place, None)
+
+    # Assert
+    assert response == {"statusCode": 200, "body": "Success"}
+    found = any("Another player needs to join" in call.kwargs.get("text", "") for call in mock_send_message.call_args_list)
+    if not found:
+        print("All send_message calls:")
+        for call in mock_send_message.call_args_list:
+            print(call.kwargs.get("text", ""))
+    assert found, "'Another player needs to join' error message not found in send_message calls"

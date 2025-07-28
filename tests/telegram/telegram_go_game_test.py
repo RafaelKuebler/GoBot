@@ -13,7 +13,8 @@ SECOND_USERNAME = "'Bob'"
 
 
 class TestGame:
-    def setup_game(self, num_players: int = 2) -> TelegramGoGame:
+    @staticmethod
+    def setup_game(num_players: int = 2) -> TelegramGoGame:
         """Set up a TelegramGoGame with the number of players"""
         game = TelegramGoGame(DEFAULT_CHAT_ID, 9, 9)
         if num_players > 0:

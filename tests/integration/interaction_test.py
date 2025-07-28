@@ -1,9 +1,6 @@
 import json
 import time
-from unittest.mock import ANY, patch
-
-import pytest
-from telegram.ext import ExtBot
+from unittest.mock import ANY
 
 import main
 
@@ -43,18 +40,6 @@ def build_event(
             }
         )
     }
-
-
-@pytest.fixture
-def mock_send_message():
-    with patch.object(ExtBot, "send_message", autospec=True) as mock_send_message:
-        yield mock_send_message
-
-
-@pytest.fixture
-def mock_send_photo():
-    with patch.object(ExtBot, "send_photo", autospec=True) as mock_send_photo:
-        yield mock_send_photo
 
 
 def test_start_prints_instructions(mock_send_message):
