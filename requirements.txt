@@ -1,4 +1,4 @@
 Pillow==11.3.0
-python-telegram-bot==22.4
+python-telegram-bot==22.5
 pydantic-settings==2.11.0
 boto3==1.40.40
