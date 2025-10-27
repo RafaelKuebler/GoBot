@@ -6,4 +6,4 @@ pytest-cov==7.0.0
 # AWS CDK
 aws-cdk-lib==2.221.0
 constructs==10.4.2
-python-dotenv==1.1.1
+python-dotenv==1.2.1
