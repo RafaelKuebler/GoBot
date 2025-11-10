@@ -11,7 +11,8 @@ directory = "coverage_html_report"
 venv = ".venv"
 venvPath = "."
 
-[tool.pytest.ini_options]
+[tool.pytest]
+strict = true
 asyncio_default_fixture_loop_scope = "function"
 asyncio_mode = "auto"
 filterwarnings = [

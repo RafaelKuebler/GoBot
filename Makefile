@@ -1,4 +1,4 @@
-ockdefault: help
+default: help
 
 .PHONY: help
 help: # Show help for each of the Makefile recipes.
