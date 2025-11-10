@@ -85,6 +85,8 @@ def check_if_participating_player(player_id: int, game: TelegramGoGame) -> None:
 
 
 def check_if_player_turn(player_id: int, game: TelegramGoGame) -> None:
+    if not game.current_player:
+        raise GameHandlerException("The game has no players yet! Join the game with /join")
     if player_id != game.current_player.id_:
         message = f"{random.choice(proverbs.patience_proverbs)}\nIt is not your turn!"
         raise GameHandlerException(message)
