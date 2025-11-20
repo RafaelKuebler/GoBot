@@ -1,4 +1,8 @@
 {
+  "cli-telemetry": false,
+  "acknowledged-issue-numbers": [
+    34892
+  ],
   "vpc-provider:account=048378150643:filter.isDefault=true:region=eu-west-1:returnAsymmetricSubnets=true": {
     "vpcId": "vpc-3c69a045",
     "vpcCidrBlock": "172.31.0.0/16",
