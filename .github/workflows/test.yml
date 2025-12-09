@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [master]
 
+permissions:
+  contents: write # needed for merging
+  pull-requests: write # needed for enabling auto-merge
+
 jobs:
   tests:
     runs-on: ubuntu-latest
