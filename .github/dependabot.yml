@@ -6,15 +6,21 @@ updates:
       interval: "weekly"
     pull-request-branch-name:
       separator: "/"
+    cooldown:
+      default-days: 7
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
     pull-request-branch-name:
       separator: "/"
+    cooldown:
+      default-days: 7
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
       interval: "weekly"
     pull-request-branch-name:
       separator: "/"
+    cooldown:
+      default-days: 7
