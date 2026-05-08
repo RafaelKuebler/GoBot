@@ -24,3 +24,11 @@ updates:
       separator: "/"
     cooldown:
       default-days: 7
+  - package-ecosystem: "pre-commit"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    pull-request-branch-name:
+      separator: "/"
+    cooldown:
+      default-days: 7
