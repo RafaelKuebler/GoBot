@@ -31,16 +31,21 @@ jobs:
             requirements-dev.txt
       - name: Install dependencies
         run: |
+          python -m venv .venv
+          . .venv/bin/activate
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
       - name: Run pre-commit on all files
         run: |
+          . .venv/bin/activate
           pip install pre-commit
           pre-commit install
           pre-commit run --all-files
       - name: Run tests
-        run: python -m pytest tests --no-cov
+        run: |
+          . .venv/bin/activate
+          python -m pytest tests --no-cov
         env:
           TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
 
