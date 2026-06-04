@@ -69,7 +69,7 @@ async def _start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
     chat_id = update.effective_chat.id
     user_name = update.message.from_user.name.replace("'", "")
-    logger.info(f"Chat {chat_id}, user {user_name} called /start")
+    logger.info(f"Command: /start | chat={chat_id} user={user_name}")
 
     await send_message(
         context.bot,
@@ -104,7 +104,7 @@ async def _new_game_command(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     board_size = 9
     if context.args:
         board_size = int(context.args[0])
-    logger.info(f"Chat {chat_id}, user {user_name} called /new {board_size}")
+    logger.info(f"Command: /new | chat={chat_id} user={user_name}")
 
     try:
         game_handler.new_game(chat_id, user_id, user_name, board_size)
@@ -121,7 +121,7 @@ async def _join_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     chat_id = update.effective_chat.id
     user_id = update.message.from_user.id
     user_name = update.message.from_user.name.replace("'", "")
-    logger.info(f"Chat {chat_id}, user {user_name} called /join")
+    logger.info(f"Command: /join | chat={chat_id} user={user_name}")
 
     try:
         game = game_handler.join(chat_id, user_id, user_name)
@@ -144,7 +144,7 @@ async def _place_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         await send_message(context.bot, chat_id, "Please supply coordinates (example: <code>/place a1</code>)!")
         return
     coords = context.args[0]
-    logger.info(f"Chat {chat_id}, user {user_name} called /place at {coords}")
+    logger.info(f"Command: /place | chat={chat_id} user={user_name}")
 
     try:
         game = game_handler.place_stone(chat_id, user_id, coords)
@@ -165,7 +165,7 @@ async def _pass_turn_command(update: Update, context: ContextTypes.DEFAULT_TYPE)
     chat_id = update.effective_chat.id
     user_id = update.message.from_user.id
     user_name = update.message.from_user.name.replace("'", "")
-    logger.info(f"Chat {chat_id}, user {user_name} called /pass")
+    logger.info(f"Command: /pass | chat={chat_id} user={user_name}")
 
     try:
         game = game_handler.pass_turn(chat_id, user_id)
@@ -193,6 +193,9 @@ async def _show_board_command(update: Update, context: ContextTypes.DEFAULT_TYPE
     assert update.effective_chat
 
     chat_id = update.effective_chat.id
+    if game_ is None and update.message and update.message.from_user:
+        user_name = update.message.from_user.name.replace("'", "")
+        logger.info(f"Command: /show | chat={chat_id} user={user_name}")
     game = game_ or game_handler.get_game_with_chat_id(chat_id, raise_if_not_found=True)
 
     try:
@@ -222,7 +225,7 @@ async def _display_proverb_command(update: Update, context: ContextTypes.DEFAULT
 
     chat_id = update.effective_chat.id
     user_name = update.message.from_user.name.replace("'", "")
-    logger.info(f"Chat {chat_id}, user {user_name} called /proverb")
+    logger.info(f"Command: /proverb | chat={chat_id} user={user_name}")
 
     proverb = random.choice(proverbs.go_proverbs)
     message = f"&quot;<i>{html.escape(proverb)}</i>&quot;"
