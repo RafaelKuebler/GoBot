@@ -19,7 +19,7 @@ jobs:
         ports:
           - 8000:8000
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v6.0.3
 
       - name: Set up Python
         uses: actions/setup-python@v6
