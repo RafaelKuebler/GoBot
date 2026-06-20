@@ -1,4 +1,4 @@
-FROM public.ecr.aws/lambda/python:3.13.2026.06.12.07 AS build
+FROM public.ecr.aws/lambda/python:3.13.2026.06.19.20 AS build
 
 LABEL maintainer="Rafael Kübler da Silva"
 
