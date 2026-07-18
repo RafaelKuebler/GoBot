@@ -4,7 +4,7 @@ pytest-asyncio==1.4.0
 pytest-cov==7.1.0
 
 # Type stubs
-boto3-stubs[dynamodb]==1.43.40
+boto3-stubs[dynamodb]==1.43.46
 
 # AWS CDK
 aws-cdk-lib==2.261.0
