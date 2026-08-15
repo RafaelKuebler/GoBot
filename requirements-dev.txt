@@ -8,5 +8,5 @@ boto3-stubs[dynamodb]==1.43.67
 
 # AWS CDK
 aws-cdk-lib==2.263.0
-constructs==10.8.0
+constructs==10.8.1
 python-dotenv==1.2.2
