@@ -3,8 +3,11 @@
 import os
 
 import aws_cdk as cdk
+from dotenv import load_dotenv
 
-from infrastructure.stacks.gobot_stack import GoBotStack
+load_dotenv()
+
+from infrastructure.stacks.gobot_stack import GoBotStack  # noqa: E402
 
 app = cdk.App()
 GoBotStack(
