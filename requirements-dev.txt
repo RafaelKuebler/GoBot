@@ -7,7 +7,7 @@ pytest-cov==7.1.0
 boto3-stubs[dynamodb]==1.43.108
 
 # AWS CDK
-aws-cdk-lib==2.271.0
+aws-cdk-lib==2.272.0
 cdk-ecr-deployment==4.2.65
 constructs==10.8.1
 python-dotenv==1.2.3
